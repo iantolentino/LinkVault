@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkVault</title>
+  <link rel="icon" href="images/vault.png" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+</head>
+<body>
+
+  <button id="loginBtn">Login with Google</button>
+  <button id="logoutBtn" style="display:none;">Logout</button>
+  <h1 id="welcomeText">Loading...</h1>
+  
+  <div class="spinner"></div>
+
+  <header>
+      <div class="navbar">
+          <span class="logo">LinkVault</span>
+          <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+          <div class="nav-links">
+              <button onclick="addCategory()">Add Category</button>
+              <input class="search-bar" onkeyup="searchLinks()" placeholder="Search Links" />
+              <button class="mode-toggle" onclick="toggleDarkMode()">Toggle Mode</button>
+              <button onclick="showFormatModal()">Format</button>
+          </div>
+      </div>
+  </header>
+
+  <div class="container" id="container">
+    <!-- Categories and links go here -->
+  </div>
+
+  <!-- Firebase Authentication Logic -->
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkkSbOQ_3j1FTn7y2w0QDlfmfSXlNpZNQ",
+      authDomain: "linkvault-49654.firebaseapp.com",
+      projectId: "linkvault-49654",
+      storageBucket: "linkvault-49654.firebasestorage.app",
+      messagingSenderId: "645357566621",
+      appId: "1:645357566621:web:bb52b835a760583ae03274",
+      measurementId: "G-T60L4HH3C6"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    // Check if user is logged in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("welcomeText").innerText = `Welcome, ${user.displayName}!`;
+        document.getElementById("loginBtn").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "block";
+      } else {
+        window.location.href = "index.html"; // Redirect to login if not authenticated
+      }
+    });
+
+    // Login with Google
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      auth.signInWithPopup(provider)
+        .then(result => {
+          console.log("User signed in:", result.user);
+        })
+        .catch(error => {
+          console.error("Login Error:", error);
+        });
+    });
+
+    // Logout function
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        window.location.href = "index.html"; // Redirect to login page
+      });
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
