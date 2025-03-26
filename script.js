@@ -29,6 +29,19 @@ loadLinks();
 // document.getElementById("addLinkBtn").addEventListener("click", addLink);
 // document.getElementById("searchInput").addEventListener("input", searchLinks);
 
+document.getElementById("google-login").addEventListener("click", () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    
+    firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+            console.log("User signed in:", result.user);
+            window.location.href = "homepage.html"; // Redirect on success
+        })
+        .catch((error) => {
+            console.error("Login error:", error);
+        });
+});
+
 
 function loadLinks() {
     let savedCategories = JSON.parse(localStorage.getItem("categories") || "[]");
