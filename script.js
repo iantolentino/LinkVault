@@ -1,7 +1,34 @@
 document.addEventListener("DOMContentLoaded", loadLinks);
+    let isDarkMode = localStorage.getItem("darkMode") === "true";
+    applyDarkMode();
 
-let isDarkMode = localStorage.getItem("darkMode") === "true";
-applyDarkMode();
+// Check user authentication
+firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+        window.location.href = "index.html"; // Redirect if not logged in
+    }
+});
+
+// Logout functionality
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        firebase.auth().signOut().then(() => {
+            console.log("User signed out");
+            window.location.href = "index.html"; // Redirect to login
+        }).catch(error => {
+            console.error("Logout error:", error);
+        });
+    });
+}
+
+loadCategories();
+loadLinks();
+
+// document.getElementById("addCategoryBtn").addEventListener("click", addCategory);
+// document.getElementById("addLinkBtn").addEventListener("click", addLink);
+// document.getElementById("searchInput").addEventListener("input", searchLinks);
+
 
 function loadLinks() {
     let savedCategories = JSON.parse(localStorage.getItem("categories") || "[]");

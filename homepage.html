@@ -6,80 +6,119 @@
   <title>LinkVault</title>
   <link rel="icon" href="images/vault.png" type="image/x-icon" />
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+  <script src="firebase-config.js" defer></script>
+  <script src="homepage.js" defer></script>
 </head>
 <body>
-
   <div class="spinner"></div>
-
   <header>
-      <div class="navbar">
-          <span class="logo">LinkVault</span>
-          <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-          <div class="nav-links">
-              <button onclick="addCategory()">Add Category</button>
-              <input class="search-bar" onkeyup="searchLinks()" placeholder="Search Links" />
-              <button class="mode-toggle" onclick="toggleDarkMode()">Toggle Mode</button>
-              <button onclick="showFormatModal()">Format</button>
-          </div>
+    <div class="navbar">
+      <span class="logo">LinkVault</span>
+      <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+      <div class="nav-links">
+        <button onclick="addCategory()">Add Category</button>
+        <input class="search-bar" onkeyup="searchLinks()" placeholder="Search Links" />
+        <button class="mode-toggle" onclick="toggleDarkMode()">Toggle Mode</button>
+        <button onclick="showFormatModal()">Format</button>
+        <button id="logoutBtn">Logout</button>
       </div>
+    </div>
   </header>
-
   <div class="container" id="container">
-    <!-- Categories and links go here -->
+    <!-- Manually added CodeLab category -->
+    <div class="section" id="CodeLab">
+      <h2>
+        <span class="category-title">CODELAB</span>
+        <div class="button-group">
+          <button onclick="toggleEditMode(this)" title="Edit">
+            <img class="icon" src="https://cdn-icons-png.flaticon.com/32/992/992651.png" alt="Edit" />
+          </button>
+          <button class="rename-btn" onclick="renameCategory('CodeLab')" title="Rename">
+            <img class="icon" src="https://cdn-icons-png.flaticon.com/32/1250/1250903.png" alt="Rename" />
+          </button>
+          <button class="delete-btn" onclick="deleteCategory('CodeLab')" title="Delete">
+            <img class="icon" src="https://cdn-icons-png.flaticon.com/32/6861/6861362.png" alt="Delete" />
+          </button>
+        </div>
+      </h2>
+      <nav>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/LinkVault/" target="_blank">LinkVault</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'LinkVault', 'https://iantolentino.github.io/LinkVault/')">Delete</button>
+        </div>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/Spaceremover/" target="_blank">Space Remover</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'Space Remover', 'https://iantolentino.github.io/Spaceremover/')">Delete</button>
+        </div>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/FlashCard/" target="_blank">Flash Card</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'Flash Card', 'https://iantolentino.github.io/FlashCard/')">Delete</button>
+        </div>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/ColorDocx/" target="_blank">Color Docx</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'Color Docx', 'https://iantolentino.github.io/ColorDocx/')">Delete</button>
+        </div>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/Drag-then-Print/" target="_blank">Drag then Print</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'Drag then Print', 'https://iantolentino.github.io/Drag-then-Print/')">Delete</button>
+        </div>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/Pomodoro/" target="_blank">Pomodoro</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'Pomodoro', 'https://iantolentino.github.io/Pomodoro/')">Delete</button>
+        </div>
+        <div class="link-container">
+          <a href="https://iantolentino.github.io/Sleep-Cycle-Calculator/" target="_blank">Sleep Cycle Calculator</a>
+          <button class="delete-button" onclick="deleteLink(this, 'CodeLab', 'Sleep Cycle Calculator', 'https://iantolentino.github.io/Sleep-Cycle-Calculator/')">Delete</button>
+        </div>
+
+      
+      </nav>
+      <div class="edit-mode" style="display: none;">
+        <input type="text" placeholder="Link Title" id="CodeLab-title" />
+        <input type="url" placeholder="Link URL" id="CodeLab-url" />
+        <button onclick="addLink('CodeLab')" title="Add">
+          <img class="icon" src="https://cdn-icons-png.flaticon.com/32/992/992651.png" alt="Add" />
+        </button>
+      </div>
+    </div>
+    <!-- Other categories will be added dynamically by script.js -->
   </div>
 
-  <!-- Firebase Authentication Logic -->
+  <!-- Pre-populate localStorage for CodeLab so the script.js functions work correctly -->
   <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDkkSbOQ_3j1FTn7y2w0QDlfmfSXlNpZNQ",
-      authDomain: "linkvault-49654.firebaseapp.com",
-      projectId: "linkvault-49654",
-      storageBucket: "linkvault-49654.firebasestorage.app",
-      messagingSenderId: "645357566621",
-      appId: "1:645357566621:web:bb52b835a760583ae03274",
-      measurementId: "G-T60L4HH3C6"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
-
-    // Check if user is logged in
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById("welcomeText").innerText = `Welcome, ${user.displayName}!`;
-        document.getElementById("loginBtn").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "block";
-      } else {
-        window.location.href = "index.html"; // Redirect to login if not authenticated
-      }
-    });
-
-    // Login with Google
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      auth.signInWithPopup(provider)
-        .then(result => {
-          console.log("User signed in:", result.user);
-        })
-        .catch(error => {
-          console.error("Login Error:", error);
-        });
-    });
-
-    // Logout function
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      auth.signOut().then(() => {
-        window.location.href = "index.html"; // Redirect to login page
-      });
-    });
+    // Ensure CodeLab is part of the stored categories list.
+    let storedCategories = JSON.parse(localStorage.getItem("categories") || "[]");
+    if (!storedCategories.includes("CodeLab")) {
+      storedCategories.push("CodeLab");
+      localStorage.setItem("categories", JSON.stringify(storedCategories));
+    }
+    // If CodeLab doesn't have its links stored yet, add them.
+    if (!localStorage.getItem("CodeLab")) {
+      localStorage.setItem(
+        "CodeLab",
+        JSON.stringify([
+          { title: "LinkVault", url: "https://iantolentino.github.io/LinkVault/" },
+          { title: "Space Remover", url: "https://iantolentino.github.io/Spaceremover/" },
+          { title: "Flash Card", url: "https://iantolentino.github.io/FlashCard/" },
+          { title: "Color Docx", url: "https://iantolentino.github.io/ColorDocx/" }
+        ])
+      );
+    }
   </script>
 
+  <!-- Modal for Format Options -->
+  <div id="formatModal" class="modal">
+    <div class="modal-content">
+      <h3>Format Options</h3>
+      <button onclick="downloadFormat()">Download Current Format</button>
+      <br>
+      <input type="file" id="uploadFormat" accept=".json" onchange="uploadFormat(this.files)" />
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+  
   <script src="script.js"></script>
 </body>
 </html>
