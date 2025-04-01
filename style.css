@@ -1,0 +1,664 @@
+/* Global Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 ;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #333;
+  color: #f9f9f9;
+  /* display: flex; */
+  flex-direction: column;
+  align-items: center;
+  /* margin-top: 15px; */
+}
+
+/* Header Styles */
+header {
+  /* position: fixed; */
+  top: 0;
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 15px;
+  font-size: 24px;
+  letter-spacing: 1px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Category Actions */
+.category-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-toggle,
+.category-actions button {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #555;
+  color: #f9f9f9;
+  transition: background-color 0.3s;
+}
+
+.mode-toggle:hover,
+.category-actions button:hover {
+  background-color: #666;
+}
+
+/* Search Bar */
+.search-bar {
+  margin-left: 15px;
+  padding: 8px;
+  border-radius: 5px;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+}
+
+.highlight {
+  background-color: rgb(0, 255, 136);
+  color: #333;
+}
+
+/* Container & Section */
+.container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+  margin-top: 100px;
+}
+
+.section {
+  background-color: #444;
+  border-radius: 10px;
+  box-shadow: 0 12px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  padding: 15px;
+  overflow: hidden;
+  position: relative;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.section h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: #181f1f;
+}
+
+.section:hover {
+  transform: translateY(-5px);
+}
+
+/* Navigation & Edit Mode */
+nav,
+.edit-mode {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-mode {
+  display: none;
+  align-items: center;
+}
+
+.edit-mode input {
+  width: 90%;
+  padding: 8px;
+  font-size: 14px;
+  margin: 5px auto;
+  border-radius: 5px;
+  border: 1px solid #666;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Link Container */
+.link-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #555;
+  transition: background-color 0.3s;
+}
+
+.link-container a {
+  color: #f9f9f9;
+  text-decoration: none;
+  font-size: 16px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-container:hover {
+  background-color: #666;
+}
+
+.delete-button {
+  background-color: rgb(68, 68, 68);
+  color: #f9f9f9;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1001;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #444;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content button {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #555;
+  color: #f9f9f9;
+  margin: 10px;
+  transition: background-color 0.3s;
+}
+
+.modal-content button:hover {
+  background-color: #666;
+}
+
+.modal-content input[type="file"] {
+  margin: 10px 0;
+}
+
+/* Heading and Button Group */
+h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+/* General Button Styles */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  filter: brightness(0) invert(1);
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin-right: 10px;
+}
+
+nav div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#container {
+  display: grid;
+  gap: 5px;
+  padding: 5px;
+}
+
+/* Navbar Styles */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 20px;
+  background-color: #000;
+  color: #fff;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.nav-links button,
+.nav-links input {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #555;
+  color: #f9f9f9;
+  transition: background-color 0.3s;
+}
+
+.nav-links button:hover {
+  background-color: #666;
+}
+
+/* Menu Toggle */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: #000;
+    padding: 15px;
+    border-bottom: 2px solid #333;
+    text-align: center;
+  }
+  input.search-bar {
+    margin-right: 2%;
+  }
+  .nav-links.show {
+    display: flex;
+  }
+  .nav-links button,
+  .nav-links input {
+    width: 80%;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  .menu-toggle {
+    font-size: 20px;
+  }
+}
+
+/* Combined Login Page Styles */
+.brand-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #555;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.tab-btn.active {
+  color: #f9f9f9;
+  font-weight: bold;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #666;
+}
+
+.auth-content {
+  position: relative;
+  min-height: 250px;
+}
+
+.auth-form {
+  display: none;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.auth-form.active {
+  display: block;
+}
+
+.google-auth-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.google-auth-info p {
+  color: #ccc;
+  margin-bottom: 25px;
+}
+
+.google-login-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+#forgotPassword, #createAccount, .switch-to-email{
+  color: #ccc;
+}
+
+.auth-links {
+  margin-top: 10px;
+}
+
+.google-login-btn:hover {
+  background-color: #666;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.auth-submit-btn:hover {
+  background-color: #666;
+}
+
+.switch-to-email {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.auth-error {
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border-left: 3px solid #ff6b6b;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Add these styles to your existing CSS */
+.input-group input::placeholder {
+  color: #999;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background-color: #444;
+  color: #f9f9f9;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #666;
+  box-shadow: 0 0 5px rgba(102, 102, 102, 0.5);
+}
+
+/* Make sure search bar matches the same style */
+.search-bar {
+  background-color: #444 !important;
+  color: #f9f9f9 !important;
+  border: 1px solid #555 !important;
+}
+
+.search-bar::placeholder {
+  color: #999 !important;
+  opacity: 0.8 !important;
+  font-style: italic !important;
+}
+/* Spinner Styles */
+.spinner {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #555;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  position: absolute;
+}
+
+/* Login Container Styles */
+/* Centered Login Page */
+.login-wrapper {
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+width: 100%;
+background: linear-gradient(135deg, #222, #444);
+}
+
+/* Stylish Login Container */
+.login-container {
+background: #333;
+padding: 40px;
+border-radius: 10px;
+box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+text-align: center;
+max-width: 400px;
+width: 90%;
+animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Brand Name Styling */
+.brand-name {
+color: #ffffff;
+font-weight: bold;
+}
+
+/* Subtitle Text */
+.subtitle {
+font-size: 14px;
+color: #ccc;
+margin-bottom: 20px;
+}
+
+/* Google Login Button */
+/* Ensure the login button is centered */
+.login-btn {
+background-color: #555;
+color: white;
+font-size: 16px;
+padding: 12px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+width: 100%;  /* Ensures it stretches fully */
+max-width: 250px;  /* Prevents it from being too wide */
+margin: 20px auto;  /* Centers it horizontally */
+transition: background 0.3s ease-in-out;
+}
+
+.login-btn:hover {
+background-color: #666;
+}
+
+/* Google Icon */
+.google-icon {
+width: 20px;
+height: 20px;
+}
+
+
+/* Fade In Animation */
+@keyframes fadeIn {
+from {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+/* Apply the login page design to the homepage container */
+.homepage-container {
+background: #333;  /* Dark background like the login container */
+padding: 20px 30px;
+border-radius: 10px;
+box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+text-align: left;  /* Keep original alignment */
+width: 100%; /* Keep original width */
+}
+
+/* Keep the original text styles */
+.homepage-title {
+font-size: 26px;
+font-weight: bold;
+color: #ffffff;
+}
+
+.homepage-subtitle {
+font-size: 16px;
+color: #ccc;
+margin-bottom: 15px;
+}
+
+/* Keep other containers unchanged */
+.container {
+padding: 15px;
+}
+
+
+
+/* Keyframes */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Grid Layout for #container */
+@media (min-width: 1400px) {
+  #container {
+    margin: auto;
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (max-width: 1399px) {
+  #container {
+    margin: auto;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 1070px) {
+  #container {
+    margin: auto;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 900px) {
+  #container {
+    margin: auto;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 550px) {
+  #container {
+    margin: auto;
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
