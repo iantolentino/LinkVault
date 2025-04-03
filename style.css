@@ -58,14 +58,30 @@ header {
   background-color: #666;
 }
 
-/* Search Bar */
+/* Search Bar - Light Mode Compatibility */
 .search-bar {
   margin-left: 15px;
   padding: 8px;
   border-radius: 5px;
   outline: none;
   font-size: 16px;
-  color: #333;
+  transition: all 0.3s ease;
+}
+
+body.light-mode .search-bar {
+  background-color: #fff !important;
+  color: #333 !important;
+  border: 1px solid #ddd !important;
+}
+
+body.light-mode .search-bar::placeholder {
+  color: #999 !important;
+}
+
+body.dark-mode .search-bar {
+  background-color: #444 !important;
+  color: #f9f9f9 !important;
+  border: 1px solid #555 !important;
 }
 
 .highlight {
@@ -493,6 +509,39 @@ nav div {
   box-shadow: 0 0 5px rgba(102, 102, 102, 0.5);
 }
 
+/* Light mode inputs */
+body.light-mode .input-group input,
+body.light-mode .edit-mode input,
+body.light-mode .search-bar {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+/* Dark mode inputs */
+body.dark-mode .input-group input,
+body.dark-mode .edit-mode input,
+body.dark-mode .search-bar {
+  background-color: #444;
+  color: #f9f9f9;
+  border: 1px solid #555;
+}
+/* Placeholder styles - both modes */
+::placeholder {
+  opacity: 0.8;
+  font-style: italic;
+}
+
+/* Light mode placeholders */
+body.light-mode ::placeholder {
+  color: #706c6c;
+}
+
+/* Dark mode placeholders - brighter for visibility */
+body.dark-mode ::placeholder {
+  color: #353535; /* Lighter gray for better visibility */
+}
+
 /* Make sure search bar matches the same style */
 .search-bar {
   background-color: #444 !important;
@@ -516,6 +565,76 @@ nav div {
   position: absolute;
 }
 
+/* Buttons - Light Mode Compatibility */
+button, .mode-toggle, .category-actions button {
+  transition: all 0.3s ease;
+}
+
+body.light-mode button,
+body.light-mode .mode-toggle,
+body.light-mode .category-actions button {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+body.light-mode button:hover,
+body.light-mode .mode-toggle:hover,
+body.light-mode .category-actions button:hover {
+  background-color: #e0e0e0;
+}
+
+body.dark-mode button,
+body.dark-mode .mode-toggle,
+body.dark-mode .category-actions button {
+  background-color: #555;
+  color: #f9f9f9;
+  border: 1px solid #666;
+}
+
+/* Format Modal Styles */
+#formatModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+#formatModal .modal-content {
+  background-color: #444;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+#formatModal button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #555;
+  color: white;
+  border: 2px solid #666; /* Added border */
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#formatModal button:hover {
+  background-color: #666;
+}
+
+#formatModal h3 {
+  margin-bottom: 20px;
+  color: #f9f9f9;
+}
 /* Login Container Styles */
 /* Centered Login Page */
 .login-wrapper {
@@ -623,7 +742,83 @@ margin-bottom: 15px;
 padding: 15px;
 }
 
+/* Light Mode Specific Styles */
+body.light-mode {
+  background-color: #f5f5f5;
+  color: #333;
+}
 
+body.light-mode .section h2,
+body.light-mode .category-title,
+body.light-mode .link-container a,
+body.light-mode nav a {
+  color: #333 !important; /* Force dark text in light mode */
+}
+
+body.light-mode .section {
+  background-color: #fff;
+  color: #333;
+}
+
+body.light-mode .link-container {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+body.light-mode .link-container a {
+  color: #333 !important;
+}
+
+body.light-mode .link-container:hover {
+  background-color: #e0e0e0;
+}
+
+body.light-mode .search-bar,
+body.light-mode .nav-links button,
+body.light-mode .nav-links input {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+body.light-mode .auth-submit-btn,
+body.light-mode .google-login-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+body.light-mode .auth-submit-btn:hover,
+body.light-mode .google-login-btn:hover {
+  background-color: #e0e0e0;
+}
+
+body.light-mode .section h2 {
+  color: #444;
+}
+
+body.light-mode .icon {
+  filter: brightness(0) invert(0);
+}
+
+/* Dark Mode Specific Styles (for reference) */
+body.dark-mode {
+  background-color: #333;
+  color: #f9f9f9;
+}
+
+body.dark-mode .section,
+body.dark-mode .modal-content {
+  background-color: #444;
+}
+
+body.dark-mode .link-container {
+  background-color: #555;
+}
+
+body.dark-mode .icon {
+  filter: brightness(0) invert(1);
+}
 
 /* Keyframes */
 @keyframes spin {
