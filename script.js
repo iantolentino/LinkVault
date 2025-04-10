@@ -148,13 +148,6 @@ function createLinkElement(nav, title, url, categoryName) {
     newLink.textContent = title;
     newLink.target = "_blank";
     
-    // Ensure the link inherits the correct color
-    if (isDarkMode) {
-        newLink.style.color = "#f9f9f9";
-    } else {
-        newLink.style.color = "#333";
-    }
-    
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-button";
     deleteButton.textContent = "Delete";
@@ -243,9 +236,47 @@ window.onload = loadTheme;
 
 // Show format modal
 function showFormatModal() {
-    document.getElementById("formatModal").style.display = "flex";
-}
-
+    document.getElementById("formatModal").style.display = "block";
+  }
+  
+  function closeFormatModal() {
+    document.getElementById("formatModal").style.display = "none";
+  }
+  
+  function readJsonFile() {
+    const input = document.getElementById('jsonFileInput');
+    const output = document.getElementById('output');
+  
+    if (!input.files.length) {
+      alert("Please select a file.");
+      return;
+    }
+  
+    const file = input.files[0];
+    const reader = new FileReader();
+  
+    reader.onload = function (e) {
+      try {
+        const jsonData = JSON.parse(e.target.result);
+        let result = "";
+  
+        for (const category in jsonData) {
+          result += `\n=== ${category} ===\n`;
+          jsonData[category].forEach(link => {
+            result += `• ${link.title} - ${link.url}\n`;
+          });
+        }
+  
+        output.textContent = result;
+      } catch (error) {
+        output.textContent = "Invalid JSON file.";
+        console.error(error);
+      }
+    };
+  
+    reader.readAsText(file);
+  }
+  
 // Close format modal
 function closeModal() {
     document.getElementById("formatModal").style.display = "none";
@@ -271,87 +302,92 @@ function downloadFormat() {
                    closeModal();
                }
                
-               // Format Import (Upload)
-             // Format Import (Upload)
-document.getElementById('formatUpload')?.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        try {
-            const importedData = JSON.parse(event.target.result);
+// Format Import (Upload)
+document.getElementById('formatUpload')?.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
             
-            if (!validateFormat(importedData)) {
-                alert("Invalid format file structure!");
-                return;
-            }
-            
-            // Clear existing data
-            localStorage.clear();
-            
-            // Save new categories
-            const categories = Object.keys(importedData);
-            localStorage.setItem('categories', JSON.stringify(categories));
-            
-            // Save each category's links
-            categories.forEach(category => {
-                const links = importedData[category].map(link => ({
-                    title: link.title,
-                    url: link.url
-                }));
-                localStorage.setItem(category, JSON.stringify(links));
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        
+                        if (!validateFormat(importedData)) {
+                            alert("Invalid format file structure!");
+                            return;
+                        }
+                        
+                        // Clear only category-related data
+                        const currentCategories = JSON.parse(localStorage.getItem('categories') || '[]');
+                        currentCategories.forEach(category => localStorage.removeItem(category));
+                        localStorage.removeItem('categories');
+                        
+                        // Save new categories
+                        const categories = Object.keys(importedData);
+                        localStorage.setItem('categories', JSON.stringify(categories));
+                        
+                        // Save each category's links
+                        categories.forEach(category => {
+                            const links = importedData[category].map(link => ({
+                                title: link.title,
+                                url: link.url
+                            }));
+                            localStorage.setItem(category, JSON.stringify(links));
+                        });
+                        
+                        // Refresh the UI
+                        document.getElementById('container').innerHTML = '';
+                        loadLinks();
+                        alert("Format imported successfully!");
+                        closeModal();
+                    } catch (error) {
+                        alert("Error reading file: " + error.message);
+                    }
+                };
+                reader.readAsText(file);
             });
-            
-            // Refresh the UI
-            document.getElementById('container').innerHTML = '';
-            loadLinks();
-            alert("Format imported successfully!");
-            closeModal();
-        } catch (error) {
-            alert("Error reading file: " + error.message);
-        }
-    };
-    reader.readAsText(file);
-});
 
 function applyFormat() {
-    const fileInput = document.getElementById('formatUpload');
-    if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const importedData = JSON.parse(event.target.result);
-                if (!validateFormat(importedData)) {
-                    alert("Invalid format file structure!");
-                    return;
+                const fileInput = document.getElementById('formatUpload');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const importedData = JSON.parse(event.target.result);
+                            if (!validateFormat(importedData)) {
+                                alert("Invalid format file structure!");
+                                return;
+                            }
+                            // Clear only category-related data
+                            const currentCategories = JSON.parse(localStorage.getItem('categories') || '[]');
+                            currentCategories.forEach(category => localStorage.removeItem(category));
+                            localStorage.removeItem('categories');
+                            // Save new categories and links
+                            const categories = Object.keys(importedData);
+                            localStorage.setItem('categories', JSON.stringify(categories));
+                            categories.forEach(category => {
+                                const links = importedData[category].map(link => ({
+                                    title: link.title,
+                                    url: link.url
+                                }));
+                                localStorage.setItem(category, JSON.stringify(links));
+                            });
+                            // Refresh the UI
+                            document.getElementById('container').innerHTML = '';
+                            loadLinks();
+                            alert("Format applied successfully!");
+                            closeModal(); // Assuming closeModal is intended here
+                        } catch (error) {
+                            alert("Error reading file: " + error.message);
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert("Please select a file to apply.");
                 }
-                // Clear existing data
-                localStorage.clear();
-                // Save new categories and links
-                const categories = Object.keys(importedData);
-                localStorage.setItem('categories', JSON.stringify(categories));
-                categories.forEach(category => {
-                    const links = importedData[category].map(link => ({
-                        title: link.title,
-                        url: link.url
-                    }));
-                    localStorage.setItem(category, JSON.stringify(links));
-                });
-                // Refresh the UI
-                document.getElementById('container').innerHTML = '';
-                loadLinks();
-                alert("Format applied successfully!");
-            } catch (error) {
-                alert("Error reading file: " + error.message);
             }
-        };
-        reader.readAsText(file);
-    } else {
-        alert("Please select a file to apply.");
-    }
-}
 
 // Validate imported format
     function validateFormat(data) {
