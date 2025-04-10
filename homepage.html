@@ -21,7 +21,25 @@
           <button onclick="addCategory()">Add Category</button>
           <input class="search-bar" onkeyup="searchLinks()" placeholder="Search Links" />
           <button class="mode-toggle" onclick="toggleDarkMode()">Toggle Mode</button>
-          <button onclick="showFormatModal()">Format</button>
+          <!-- Format Modal -->
+          <button onclick="showFormatModal()">Format</button> 
+         <!-- Format Modal -->
+        <div id="formatModal" class="modal">
+          <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Import / Export Format</h2>
+
+            <input type="file" id="formatUpload" accept=".json" /><br /><br />
+            <pre id="output" style="max-height: 200px; overflow-y: auto;"></pre>
+
+            <div class="modal-buttons">
+              <button onclick="readJsonFile()">Import Data</button>
+              <button onclick="downloadFormat()">Export Data</button>
+              <button onclick="applyFormat()">Apply Data</button>
+              <button onclick="closeModal()">Close</button>
+            </div>
+          </div>
+        </div>
           <button id="logoutBtn">Logout</button>
         </div>
       </div>
