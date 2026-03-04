@@ -1,0 +1,10 @@
+# Frontend specific
+node_modules/
+.env.local
+.env.*.local
+dist/
+build/
+.vite/
+*.log
+.DS_Store
+.vercel/

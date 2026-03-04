@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkVault - Dashboard</title>
+  <link rel="icon" href="images/vault.png" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="homepage-wrapper">
+    <header>
+      <div class="navbar">
+        <span class="logo">LinkVault</span>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div class="nav-links" id="navLinks">
+          <button id="addCategoryBtn">Add Category</button>
+          <input class="search-bar" id="searchBar" placeholder="Search Links" />
+          <button class="mode-toggle" id="modeToggle">☾ Dark Mode</button>
+          <button id="formatBtn">Format</button>
+          <button id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="homepage-container">
+      <div class="container" id="container">
+        <!-- Categories will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Format Modal -->
+  <div id="formatModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h2>Import / Export Data</h2>
+      <input type="file" id="formatUpload" accept=".json" /><br /><br />
+      <pre id="output" style="max-height: 200px; overflow-y: auto;"></pre>
+      <div class="modal-buttons">
+        <button id="importBtn">Import Data</button>
+        <button id="exportBtn">Export Data</button>
+        <button id="applyBtn">Apply Data</button>
+        <button id="closeModalBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+  <div id="notification" class="notification" style="display: none;"></div>
+
+  <!-- Import Map for Firebase -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+      }
+    }
+  </script>
+  
+  <!-- Load your scripts from the correct path -->
+  <script type="module" src="src/js/firebase-config.js"></script>
+  <script type="module" src="src/js/api-client.js"></script>
+  <script type="module" src="src/js/homepage.js"></script>
+</body>
+</html>

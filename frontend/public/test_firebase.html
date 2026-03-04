@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Domain Test</title>
+</head>
+<body>
+    <h1>Firebase Domain Test</h1>
+    
+    <div style="padding: 20px; border: 1px solid #ccc; margin: 10px;">
+        <h3>Current Information:</h3>
+        <p><strong>Hostname:</strong> <span id="hostname"></span></p>
+        <p><strong>Href:</strong> <span id="href"></span></p>
+        <p><strong>Origin:</strong> <span id="origin"></span></p>
+    </div>
+
+    <div style="padding: 20px; border: 1px solid #ccc; margin: 10px;">
+        <h3>Authorized Domains (from Firebase):</h3>
+        <ul>
+            <li>localhost ✓</li>
+            <li>127.0.0.1 ✓</li>
+            <li>linkvault-49654.firebaseapp.com ✓</li>
+            <li>linkvault-49654.web.app ✓</li>
+            <li>iantolentino.github.io ✓</li>
+            <li id="current-domain-status" style="font-weight: bold;"></li>
+        </ul>
+    </div>
+
+    <button onclick="testLogin()">Test Google Login</button>
+    <div id="result" style="margin-top: 20px; padding: 10px;"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkkSbOQ_3j1FTn7y2w0QDlfmfSXlNpZNQ",
+            authDomain: "linkvault-49654.firebaseapp.com",
+            projectId: "linkvault-49654"
+        };
+
+        // Display current location info
+        document.getElementById('hostname').textContent = window.location.hostname;
+        document.getElementById('href').textContent = window.location.href;
+        document.getElementById('origin').textContent = window.location.origin;
+        
+        const currentDomain = window.location.hostname;
+        const authorizedDomains = ['localhost', '127.0.0.1', 'linkvault-49654.firebaseapp.com', 'linkvault-49654.web.app', 'iantolentino.github.io'];
+        
+        const statusEl = document.getElementById('current-domain-status');
+        if (authorizedDomains.includes(currentDomain)) {
+            statusEl.innerHTML = `${currentDomain} ✓ (authorized)`;
+            statusEl.style.color = 'green';
+        } else {
+            statusEl.innerHTML = `${currentDomain} ✗ (NOT authorized - add this to Firebase)`;
+            statusEl.style.color = 'red';
+        }
+
+        window.testLogin = function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Attempting login...';
+            
+            try {
+                const app = initializeApp(firebaseConfig, 'test-app');
+                const auth = getAuth(app);
+                const provider = new GoogleAuthProvider();
+                
+                signInWithPopup(auth, provider)
+                    .then(result => {
+                        resultDiv.innerHTML = `✅ Success! Logged in as: ${result.user.email}`;
+                        resultDiv.style.color = 'green';
+                    })
+                    .catch(error => {
+                        resultDiv.innerHTML = `❌ Error: ${error.message}`;
+                        resultDiv.style.color = 'red';
+                        console.error(error);
+                        
+                        if (error.code === 'auth/unauthorized-domain') {
+                            resultDiv.innerHTML += '<br><br>👉 Add this domain to Firebase Console: ' + window.location.hostname;
+                        }
+                    });
+            } catch (e) {
+                resultDiv.innerHTML = `❌ Error: ${e.message}`;
+                resultDiv.style.color = 'red';
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "linkvault-frontend",
+  "version": "1.0.0",
+  "description": "LinkVault - Save and organize your links",
+  "scripts": {
+    "start": "npx http-server public -p 3000",
+    "dev": "npx live-server public --port=3000 --entry-file=index.html",
+    "build": "echo 'Static site, no build needed'"
+  },
+  "dependencies": {
+    "firebase": "^10.7.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  }
+}
