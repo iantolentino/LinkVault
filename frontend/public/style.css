@@ -9,15 +9,12 @@ body {
   font-family: Arial, sans-serif;
   background-color: #333;
   color: #f9f9f9;
-  /* display: flex; */
   flex-direction: column;
   align-items: center;
-  /* margin-top: 15px; */
 }
 
 /* Header Styles */
 header {
-  /* position: fixed; */
   top: 0;
   width: 100%;
   background-color: #000;
@@ -58,7 +55,7 @@ header {
   background-color: #666;
 }
 
-/* Search Bar - Light Mode Compatibility */
+/* Search Bar */
 .search-bar {
   margin-left: 15px;
   padding: 8px;
@@ -105,7 +102,7 @@ body.dark-mode .search-bar {
   box-shadow: 0 12px 16px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
   padding: 15px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   min-height: 250px;
   display: flex;
@@ -157,16 +154,17 @@ nav,
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 8px 12px;
+  border-radius: 6px;
   background-color: #555;
-  transition: background-color 0.3s;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
 }
 
 .link-container a {
   color: #f9f9f9;
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -177,14 +175,30 @@ nav,
   background-color: #666;
 }
 
-.delete-button {
-  background-color: rgb(68, 68, 68);
-  color: #f9f9f9;
+.link-actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.link-container:hover .link-actions {
+  opacity: 1;
+}
+
+.link-action-btn {
+  background: none;
   border: none;
   cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: inherit;
   font-size: 12px;
-  padding: 5px;
-  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+.link-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Modal Styles */
@@ -209,6 +223,9 @@ nav,
   text-align: center;
   color: #f9f9f9;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .modal-content button {
@@ -231,51 +248,160 @@ nav,
   margin: 10px 0;
 }
 
-/* Heading and Button Group */
-h2 {
+.modal-content input[type="text"],
+.modal-content input[type="url"] {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #444;
+  color: #f9f9f9;
+  font-size: 14px;
+}
+
+/* Category Header with 3-dot menu */
+.category-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  position: relative;
+  padding: 5px 0;
 }
 
-.button-group {
-  display: flex;
-  gap: 10px;
-}
-
-/* General Button Styles */
-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.icon {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  filter: brightness(0) invert(1);
-}
-
-nav a {
-  color: white;
-  text-decoration: none;
-  margin-right: 10px;
-}
-
-nav div {
+.category-title-wrapper {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
-#container {
-  display: grid;
-  gap: 5px;
-  padding: 5px;
+.category-title {
+  font-weight: bold;
+  font-size: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 30px);
+}
+
+/* Three Dots Menu - Positioned ABOVE the card */
+.three-dots-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.dots-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: inherit;
+  line-height: 1;
+}
+
+.dots-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode .dots-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown Menu - Appears ABOVE the card */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  min-width: 200px;
+  background-color: #444;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  z-index: 9999;
+  padding: 8px 0;
+  margin-bottom: 5px;
+  border: 1px solid #555;
+}
+
+/* Position dropdown to the right on smaller screens */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    left: auto;
+    right: 0;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dropdown-menu {
+    right: -5px;
+    min-width: 160px;
+  }
+}
+
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInUp 0.2s ease-out;
+}
+
+/* Dropdown items */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #f9f9f9;
+  font-size: 14px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .dropdown-item {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+}
+
+body.light-mode .dropdown-menu {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+}
+
+body.light-mode .dropdown-item {
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background-color: #555;
+}
+
+body.light-mode .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-item i {
+  width: 18px;
+  font-size: 14px;
+  color: #999;
+  flex-shrink: 0;
 }
 
 /* Navbar Styles */
@@ -342,6 +468,7 @@ nav div {
     padding: 15px;
     border-bottom: 2px solid #333;
     text-align: center;
+    z-index: 1000;
   }
   input.search-bar {
     margin-right: 2%;
@@ -360,399 +487,10 @@ nav div {
   }
 }
 
-/* Combined Login Page Styles */
-.brand-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.auth-tabs {
-  display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #555;
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 12px;
-  background: none;
-  border: none;
-  color: #ccc;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.tab-btn.active {
-  color: #f9f9f9;
-  font-weight: bold;
-}
-
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #666;
-}
-
-.auth-content {
-  position: relative;
-  min-height: 250px;
-}
-
-.auth-form {
-  display: none;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.auth-form.active {
-  display: block;
-}
-
-.google-auth-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.google-auth-info p {
-  color: #ccc;
-  margin-bottom: 25px;
-}
-
-.google-login-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #555;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 0 auto;
-}
-
-#forgotPassword, #createAccount, .switch-to-email{
-  color: #ccc;
-}
-
-.auth-links {
-  margin-top: 10px;
-}
-
-.google-login-btn:hover {
-  background-color: #666;
-}
-
-.auth-submit-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #555;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 10px;
-}
-
-.auth-submit-btn:hover {
-  background-color: #666;
-}
-
-.switch-to-email {
-  display: block;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.auth-error {
-  color: #ff6b6b;
-  background-color: rgba(255, 107, 107, 0.1);
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  border-left: 3px solid #ff6b6b;
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Add these styles to your existing CSS */
-.input-group input::placeholder {
-  color: #999;
-  opacity: 0.8;
-  font-style: italic;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 12px 15px;
-  border-radius: 5px;
-  border: 1px solid #555;
-  background-color: #444;
-  color: #f9f9f9;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-
-.input-group input:focus {
-  outline: none;
-  border-color: #666;
-  box-shadow: 0 0 5px rgba(102, 102, 102, 0.5);
-}
-
-/* Light mode inputs */
-body.light-mode .input-group input,
-body.light-mode .edit-mode input,
-body.light-mode .search-bar {
-  background-color: #fff;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-/* Dark mode inputs */
-body.dark-mode .input-group input,
-body.dark-mode .edit-mode input,
-body.dark-mode .search-bar {
-  background-color: #444;
-  color: #f9f9f9;
-  border: 1px solid #555;
-}
-/* Placeholder styles - both modes */
-::placeholder {
-  opacity: 0.8;
-  font-style: italic;
-}
-
-/* Light mode placeholders */
-body.light-mode ::placeholder {
-  color: #706c6c;
-}
-
-/* Dark mode placeholders - brighter for visibility */
-body.dark-mode ::placeholder {
-  color: #353535; /* Lighter gray for better visibility */
-}
-
-/* Make sure search bar matches the same style */
-.search-bar {
-  background-color: #444 !important;
-  color: #f9f9f9 !important;
-  border: 1px solid #555 !important;
-}
-
-.search-bar::placeholder {
-  color: #999 !important;
-  opacity: 0.8 !important;
-  font-style: italic !important;
-}
-/* Spinner Styles */
-.spinner {
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #555;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  position: absolute;
-}
-
-/* Buttons - Light Mode Compatibility */
-button, .mode-toggle, .category-actions button {
-  transition: all 0.3s ease;
-}
-
-body.light-mode button,
-body.light-mode .mode-toggle,
-body.light-mode .category-actions button {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-body.light-mode button:hover,
-body.light-mode .mode-toggle:hover,
-body.light-mode .category-actions button:hover {
-  background-color: #e0e0e0;
-}
-
-body.dark-mode button,
-body.dark-mode .mode-toggle,
-body.dark-mode .category-actions button {
-  background-color: #555;
-  color: #f9f9f9;
-  border: 1px solid #666;
-}
-
-/* Format Modal Styles */
-#formatModal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.7);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-}
-
-#formatModal .modal-content {
-  background-color: #444;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-}
-
-#formatModal button {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #555;
-  color: white;
-  border: 2px solid #666; /* Added border */
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#formatModal button:hover {
-  background-color: #666;
-}
-
-#formatModal h3 {
-  margin-bottom: 20px;
-  color: #f9f9f9;
-}
-/* Login Container Styles */
-/* Centered Login Page */
-.login-wrapper {
-display: flex;
-justify-content: center;
-align-items: center;
-height: 100vh;
-width: 100%;
-background: linear-gradient(135deg, #222, #444);
-}
-
-/* Stylish Login Container */
-.login-container {
-background: #333;
-padding: 40px;
-border-radius: 10px;
-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-text-align: center;
-max-width: 400px;
-width: 90%;
-animation: fadeIn 0.5s ease-in-out;
-}
-
-/* Brand Name Styling */
-.brand-name {
-color: #ffffff;
-font-weight: bold;
-}
-
-/* Subtitle Text */
-.subtitle {
-font-size: 14px;
-color: #ccc;
-margin-bottom: 20px;
-}
-
-/* Google Login Button */
-/* Ensure the login button is centered */
-.login-btn {
-background-color: #555;
-color: white;
-font-size: 16px;
-padding: 12px 20px;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-width: 100%;  /* Ensures it stretches fully */
-max-width: 250px;  /* Prevents it from being too wide */
-margin: 20px auto;  /* Centers it horizontally */
-transition: background 0.3s ease-in-out;
-}
-
-.login-btn:hover {
-background-color: #666;
-}
-
-/* Google Icon */
-.google-icon {
-width: 20px;
-height: 20px;
-}
-
-
-/* Fade In Animation */
-@keyframes fadeIn {
-from {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-to {
-    opacity: 1;
-    transform: translateY(0);
-}
-}
-
-/* Apply the login page design to the homepage container */
-.homepage-container {
-background: #333;  /* Dark background like the login container */
-padding: 20px 30px;
-border-radius: 10px;
-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-text-align: left;  /* Keep original alignment */
-width: 100%; /* Keep original width */
-}
-
-/* Keep the original text styles */
-.homepage-title {
-font-size: 26px;
-font-weight: bold;
-color: #ffffff;
-}
-
-.homepage-subtitle {
-font-size: 16px;
-color: #ccc;
-margin-bottom: 15px;
-}
-
-/* Keep other containers unchanged */
-.container {
-padding: 15px;
-}
-
 /* Light Mode Specific Styles */
 body.light-mode {
   background-color: #f5f5f5;
   color: #333;
-}
-
-body.light-mode .section h2,
-body.light-mode .category-title,
-body.light-mode .link-container a,
-body.light-mode nav a {
-  color: #333 !important; /* Force dark text in light mode */
 }
 
 body.light-mode .section {
@@ -760,13 +498,14 @@ body.light-mode .section {
   color: #333;
 }
 
-body.light-mode .link-container {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
+body.light-mode .section h2,
+body.light-mode .category-title,
 body.light-mode .link-container a {
   color: #333 !important;
+}
+
+body.light-mode .link-container {
+  background-color: #f0f0f0;
 }
 
 body.light-mode .link-container:hover {
@@ -774,41 +513,23 @@ body.light-mode .link-container:hover {
 }
 
 body.light-mode .search-bar,
-body.light-mode .nav-links button,
-body.light-mode .nav-links input {
+body.light-mode .nav-links button {
   background-color: #fff;
   color: #333;
   border: 1px solid #ddd;
-}
-
-body.light-mode .auth-submit-btn,
-body.light-mode .google-login-btn {
-  background-color: #f0f0f0;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-body.light-mode .auth-submit-btn:hover,
-body.light-mode .google-login-btn:hover {
-  background-color: #e0e0e0;
-}
-
-body.light-mode .section h2 {
-  color: #444;
 }
 
 body.light-mode .icon {
   filter: brightness(0) invert(0);
 }
 
-/* Dark Mode Specific Styles (for reference) */
+/* Dark Mode Specific Styles */
 body.dark-mode {
   background-color: #333;
   color: #f9f9f9;
 }
 
-body.dark-mode .section,
-body.dark-mode .modal-content {
+body.dark-mode .section {
   background-color: #444;
 }
 
@@ -820,13 +541,87 @@ body.dark-mode .icon {
   filter: brightness(0) invert(1);
 }
 
-/* Keyframes */
+/* Notification */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background-color: #444;
+  color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  animation: slideIn 0.3s ease-out;
+  max-width: 90%;
+  word-wrap: break-word;
+}
+
+body.light-mode .notification {
+  background-color: #fff;
+  color: #333;
+}
+
+.notification.success {
+  border-left: 4px solid #4caf50;
+}
+
+.notification.error {
+  border-left: 4px solid #f44336;
+}
+
+.notification.warn {
+  border-left: 4px solid #ff9800;
+}
+
+.notification.info {
+  border-left: 4px solid #2196f3;
+}
+
+/* Spinner */
+.spinner {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #555;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3000;
+}
+
+/* Animations */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Grid Layout for #container */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Grid Layout */
 @media (min-width: 1400px) {
   #container {
     margin: auto;
@@ -856,4 +651,31 @@ body.dark-mode .icon {
     margin: auto;
     grid-template-columns: repeat(1, 1fr);
   }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #333;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+body.light-mode ::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+body.light-mode ::-webkit-scrollbar-thumb {
+  background: #ccc;
 }

@@ -10,6 +10,8 @@
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
   <div class="homepage-wrapper">
@@ -37,7 +39,6 @@
   <!-- Format Modal -->
   <div id="formatModal" class="modal">
     <div class="modal-content">
-      <span class="close" id="closeModal">&times;</span>
       <h2>Import / Export Data</h2>
       <input type="file" id="formatUpload" accept=".json" /><br /><br />
       <pre id="output" style="max-height: 200px; overflow-y: auto;"></pre>
@@ -46,6 +47,37 @@
         <button id="exportBtn">Export Data</button>
         <button id="applyBtn">Apply Data</button>
         <button id="closeModalBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Link Modal -->
+  <div id="editLinkModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditLinkModal()">&times;</span>
+      <h2>Edit Link</h2>
+      <input type="text" id="editLinkTitle" placeholder="Link Title">
+      <input type="url" id="editLinkUrl" placeholder="Link URL">
+      <input type="hidden" id="editLinkCategory">
+      <input type="hidden" id="editLinkOriginalTitle">
+      <div class="modal-buttons">
+        <button onclick="saveEditedLink()">Save Changes</button>
+        <button onclick="closeEditLinkModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Link Modal -->
+  <div id="addLinkModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeAddLinkModal()">&times;</span>
+      <h2>Add New Link</h2>
+      <input type="text" id="addLinkTitle" placeholder="Link Title">
+      <input type="url" id="addLinkUrl" placeholder="Link URL">
+      <input type="hidden" id="addLinkCategory">
+      <div class="modal-buttons">
+        <button onclick="saveNewLink()">Add Link</button>
+        <button onclick="closeAddLinkModal()">Cancel</button>
       </div>
     </div>
   </div>

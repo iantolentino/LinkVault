@@ -2,24 +2,24 @@
 import { auth, onAuthStateChanged, signOut } from "./firebase-config.js";
 import { api } from "./api-client.js";
 
-// Logger with ALL functions
+// Logger
 const logger = {
     info: (msg, data) => console.log(`📘 [HOMEPAGE] ${msg}`, data || ''),
     error: (msg, err) => console.error(`❌ [HOMEPAGE] ${msg}`, err),
     success: (msg, data) => console.log(`✅ [HOMEPAGE] ${msg}`, data || ''),
-    warn: (msg, data) => console.warn(`⚠️ [HOMEPAGE] ${msg}`, data || '')  // This was missing
+    warn: (msg, data) => console.warn(`⚠️ [HOMEPAGE] ${msg}`, data || '')
 };
 
 // State
 let currentUser = null;
 let isDarkMode = localStorage.getItem("darkMode") === "true";
+let activeDropdown = null;
 
-// Helper function to sanitize ID for CSS selector
+// Helper functions
 function safeId(id) {
     return CSS.escape(id);
 }
 
-// Show notification
 function showNotification(message, type = 'info') {
     const notification = document.getElementById('notification');
     if (notification) {
@@ -35,7 +35,6 @@ function showNotification(message, type = 'info') {
     }
 }
 
-// Show/hide loading spinner
 function setLoading(loading) {
     const spinner = document.getElementById('loadingSpinner');
     if (spinner) {
@@ -43,11 +42,24 @@ function setLoading(loading) {
     }
 }
 
+function closeAllDropdowns() {
+    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+        menu.classList.remove('show');
+    });
+    activeDropdown = null;
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.three-dots-menu')) {
+        closeAllDropdowns();
+    }
+});
+
 // Initialize page
 document.addEventListener("DOMContentLoaded", async () => {
     logger.info("Homepage loaded");
     
-    // Check authentication
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             logger.info("No user, redirecting to login");
@@ -56,7 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             currentUser = user;
             logger.success("User authenticated", { email: user.email });
             
-            // Use user-specific localStorage keys
             const userStorageKey = `linkvault_${user.uid}`;
             if (!localStorage.getItem(userStorageKey)) {
                 localStorage.setItem(userStorageKey, JSON.stringify({ categories: [] }));
@@ -66,37 +77,31 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // Set up event listeners
     setupEventListeners();
-    
-    // Apply theme
     applyDarkMode();
     
     // Make functions globally available
-    window.toggleEditMode = toggleEditMode;
-    window.renameCategory = renameCategory;
+    window.toggleDropdown = toggleDropdown;
+    window.editCategory = editCategory;
     window.deleteCategory = deleteCategory;
-    window.addLink = addLink;
+    window.openAddLinkModal = openAddLinkModal;
+    window.closeAddLinkModal = closeAddLinkModal;
+    window.closeEditLinkModal = closeEditLinkModal;
+    window.saveNewLink = saveNewLink;
+    window.editLink = editLink;
+    window.saveEditedLink = saveEditedLink;
     window.deleteLink = deleteLink;
 });
 
 function setupEventListeners() {
-    logger.info("Setting up event listeners");
-    
     const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     
     const addCategoryBtn = document.getElementById('addCategoryBtn');
-    if (addCategoryBtn) {
-        addCategoryBtn.addEventListener('click', handleAddCategory);
-    }
+    if (addCategoryBtn) addCategoryBtn.addEventListener('click', handleAddCategory);
     
     const searchBar = document.getElementById('searchBar');
-    if (searchBar) {
-        searchBar.addEventListener('input', handleSearch);
-    }
+    if (searchBar) searchBar.addEventListener('input', handleSearch);
     
     const modeToggle = document.getElementById('modeToggle');
     if (modeToggle) {
@@ -105,51 +110,34 @@ function setupEventListeners() {
     }
     
     const menuToggle = document.getElementById('menuToggle');
-    if (menuToggle) {
-        menuToggle.addEventListener('click', toggleMenu);
-    }
+    if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
     
     const formatBtn = document.getElementById('formatBtn');
-    if (formatBtn) {
-        formatBtn.addEventListener('click', showFormatModal);
-    }
+    if (formatBtn) formatBtn.addEventListener('click', showFormatModal);
     
     const closeModal = document.getElementById('closeModal');
-    if (closeModal) {
-        closeModal.addEventListener('click', closeFormatModal);
-    }
+    if (closeModal) closeModal.addEventListener('click', closeFormatModal);
     
     const closeModalBtn = document.getElementById('closeModalBtn');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeFormatModal);
-    }
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeFormatModal);
     
     const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportData);
-    }
+    if (exportBtn) exportBtn.addEventListener('click', exportData);
     
     const importBtn = document.getElementById('importBtn');
-    if (importBtn) {
-        importBtn.addEventListener('click', importData);
-    }
+    if (importBtn) importBtn.addEventListener('click', importData);
     
     const applyBtn = document.getElementById('applyBtn');
-    if (applyBtn) {
-        applyBtn.addEventListener('click', applyData);
-    }
+    if (applyBtn) applyBtn.addEventListener('click', applyData);
 }
 
 async function handleLogout() {
     try {
-        logger.info("Logging out");
         setLoading(true);
         await signOut(auth);
         localStorage.removeItem('firebase_token');
-        logger.success("Logged out successfully");
         window.location.href = "index.html";
     } catch (error) {
-        logger.error("Logout failed", error);
         showNotification("Logout failed: " + error.message, 'error');
     } finally {
         setLoading(false);
@@ -159,27 +147,14 @@ async function handleLogout() {
 async function loadUserData() {
     try {
         setLoading(true);
-        logger.info("Loading user data from API");
-        
-        // Load from API
         const categories = await api.getCategories();
-        logger.success("Categories loaded from API", { count: categories.length });
-        
-        // Render categories
         renderCategories(categories);
-        
     } catch (error) {
-        logger.error("Failed to load from API, checking localStorage as fallback", error);
-        // Fallback to localStorage if API fails
         loadFromLocalStorage();
-        showNotification('Using offline mode - changes will not be saved to cloud', 'warn');
+        showNotification('Using offline mode', 'warn');
     } finally {
         setLoading(false);
     }
-}
-
-function getUserStorageKey() {
-    return currentUser ? `linkvault_${currentUser.uid}` : 'linkvault_temp';
 }
 
 function loadFromLocalStorage() {
@@ -198,37 +173,13 @@ function loadFromLocalStorage() {
             addLinkToDOM(category.name, link.title, link.url);
         });
     });
-    
-    logger.info(`Loaded ${categories.length} categories from localStorage`);
-}
-
-function saveCurrentState() {
-    const categories = [];
-    const sections = document.querySelectorAll('.section');
-    
-    sections.forEach(section => {
-        const name = section.id;
-        const links = [];
-        const linkElements = section.querySelectorAll('.link-container a');
-        
-        linkElements.forEach(link => {
-            links.push({
-                title: link.textContent,
-                url: link.href
-            });
-        });
-        
-        categories.push({ name, links });
-    });
-    
-    saveToLocalStorage(categories);
-    logger.info("Current state saved to localStorage");
 }
 
 function renderCategories(categories) {
     const container = document.getElementById('container');
     if (!container) return;
     
+    closeAllDropdowns();
     container.innerHTML = '';
     
     categories.forEach(category => {
@@ -249,27 +200,18 @@ async function handleAddCategory() {
     
     try {
         setLoading(true);
-        logger.info("Adding category", { name: trimmedName });
-        
-        // Create via API
         await api.createCategory(trimmedName);
         
-        // Update UI
         if (!document.getElementById(trimmedName)) {
             createCategoryElement(trimmedName);
         }
         
         showNotification(`Category "${trimmedName}" created`, 'success');
-        
     } catch (error) {
-        logger.error("Failed to add category via API", error);
-        
-        // Fallback to localStorage
         if (!document.getElementById(trimmedName)) {
             createCategoryElement(trimmedName);
             saveToLocalStorage();
         }
-        
         showNotification('Category saved locally only', 'warn');
     } finally {
         setLoading(false);
@@ -286,51 +228,123 @@ function createCategoryElement(name) {
     const escapedName = name.replace(/'/g, "\\'");
     
     section.innerHTML = `
-        <h2>
-            <span class="category-title">${name.toUpperCase()}</span>
-            <div class="button-group">
-                <button onclick="toggleEditMode(this)" title="Add Link">
-                    <img class="icon" src="https://cdn-icons-png.flaticon.com/32/992/992651.png" alt="Add">
-                </button>
-                <button onclick="renameCategory('${escapedName}')" title="Rename">
-                    <img class="icon" src="https://cdn-icons-png.flaticon.com/32/1250/1250903.png" alt="Rename">
-                </button>
-                <button onclick="deleteCategory('${escapedName}')" title="Delete">
-                    <img class="icon" src="https://cdn-icons-png.flaticon.com/32/6861/6861362.png" alt="Delete">
-                </button>
+        <div class="category-header">
+            <div class="category-title-wrapper">
+                <span class="category-title">${name.toUpperCase()}</span>
             </div>
-        </h2>
-        <nav></nav>
-        <div class="edit-mode" style="display: none;">
-            <input type="text" placeholder="Link Title" id="${name}-title">
-            <input type="url" placeholder="Link URL" id="${name}-url">
-            <button onclick="addLink('${escapedName}')">Add Link</button>
+            <div class="three-dots-menu">
+                <button class="dots-button" onclick="toggleDropdown(this, event)" title="Category Options">⋮</button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="event.stopPropagation(); editCategory('${escapedName}')">
+                        <i class="fas fa-pencil-alt"></i> Edit Category Name
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); deleteCategory('${escapedName}')">
+                        <i class="fas fa-trash"></i> Delete Category
+                    </div>
+                    <div class="dropdown-item" onclick="event.stopPropagation(); openAddLinkModal('${escapedName}')">
+                        <i class="fas fa-plus"></i> Add New Link
+                    </div>
+                </div>
+            </div>
         </div>
+        <nav></nav>
     `;
     
     document.getElementById("container").appendChild(section);
     return section;
 }
 
-function toggleEditMode(button) {
-    const section = button.closest(".section");
-    const editMode = section.querySelector(".edit-mode");
-    if (editMode) {
-        editMode.style.display = editMode.style.display === "none" ? "block" : "none";
+function toggleDropdown(button, event) {
+    if (event) event.stopPropagation();
+    
+    closeAllDropdowns();
+    
+    const dropdown = button.nextElementSibling;
+    dropdown.classList.add('show');
+    activeDropdown = dropdown;
+}
+
+function editCategory(categoryName) {
+    closeAllDropdowns();
+    renameCategory(categoryName);
+}
+
+async function renameCategory(oldName) {
+    const newName = prompt("Enter new category name:", oldName);
+    if (!newName || newName === oldName || !newName.trim()) return;
+    
+    const trimmedNewName = newName.trim();
+    
+    try {
+        setLoading(true);
+        await api.updateCategory(oldName, trimmedNewName);
+        
+        const section = document.getElementById(oldName);
+        if (section) {
+            section.id = trimmedNewName;
+            const titleSpan = section.querySelector(".category-title");
+            if (titleSpan) {
+                titleSpan.textContent = trimmedNewName.toUpperCase();
+            }
+            
+            // Update onclick attributes
+            section.querySelectorAll('[onclick]').forEach(el => {
+                const onclick = el.getAttribute('onclick');
+                if (onclick) {
+                    el.setAttribute('onclick', onclick.replace(oldName, trimmedNewName));
+                }
+            });
+        }
+        
+        showNotification(`Category renamed to "${trimmedNewName}"`, 'success');
+    } catch (error) {
+        showNotification('Category renamed locally only', 'warn');
+    } finally {
+        setLoading(false);
     }
 }
 
-async function addLink(categoryName) {
-    const titleInput = document.getElementById(`${categoryName}-title`);
-    const urlInput = document.getElementById(`${categoryName}-url`);
+async function deleteCategory(categoryName) {
+    if (!confirm(`Delete category "${categoryName}" and all its links?`)) return;
     
-    if (!titleInput || !urlInput) {
-        logger.error("Input fields not found");
-        return;
+    closeAllDropdowns();
+    
+    try {
+        setLoading(true);
+        await api.deleteCategory(categoryName);
+        
+        const section = document.getElementById(categoryName);
+        if (section) section.remove();
+        
+        showNotification(`Category "${categoryName}" deleted`, 'success');
+    } catch (error) {
+        const section = document.getElementById(categoryName);
+        if (section) section.remove();
+        saveToLocalStorage();
+        showNotification('Category removed locally only', 'warn');
+    } finally {
+        setLoading(false);
     }
+}
+
+function openAddLinkModal(categoryName) {
+    closeAllDropdowns();
     
-    const title = titleInput.value.trim();
-    let url = urlInput.value.trim();
+    const modal = document.getElementById('addLinkModal');
+    document.getElementById('addLinkCategory').value = categoryName;
+    document.getElementById('addLinkTitle').value = '';
+    document.getElementById('addLinkUrl').value = '';
+    modal.style.display = 'flex';
+}
+
+function closeAddLinkModal() {
+    document.getElementById('addLinkModal').style.display = 'none';
+}
+
+async function saveNewLink() {
+    const categoryName = document.getElementById('addLinkCategory').value;
+    const title = document.getElementById('addLinkTitle').value.trim();
+    let url = document.getElementById('addLinkUrl').value.trim();
     
     if (!title || !url) {
         showNotification("Please enter both title and URL", 'error');
@@ -343,32 +357,15 @@ async function addLink(categoryName) {
     
     try {
         setLoading(true);
-        logger.info("Adding link", { category: categoryName, title, url });
-        
-        // Add via API
         await api.addLink(categoryName, { title, url });
         
-        // Update UI
         addLinkToDOM(categoryName, title, url);
-        
-        titleInput.value = '';
-        urlInput.value = '';
-        
-        const section = document.getElementById(categoryName);
-        const editMode = section.querySelector(".edit-mode");
-        if (editMode) {
-            editMode.style.display = "none";
-        }
-        
+        closeAddLinkModal();
         showNotification("Link added", 'success');
-        
     } catch (error) {
-        logger.error("Failed to add link via API", error);
-        
-        // Fallback to localStorage
         addLinkToDOM(categoryName, title, url);
         saveToLocalStorage();
-        
+        closeAddLinkModal();
         showNotification('Link saved locally only', 'warn');
     } finally {
         setLoading(false);
@@ -377,10 +374,7 @@ async function addLink(categoryName) {
 
 function addLinkToDOM(categoryName, title, url) {
     const nav = document.querySelector(`#${safeId(categoryName)} nav`);
-    if (!nav) {
-        logger.error(`Nav not found for category: ${categoryName}`);
-        return;
-    }
+    if (!nav) return;
     
     const escapedCategory = categoryName.replace(/'/g, "\\'");
     const escapedTitle = title.replace(/'/g, "\\'");
@@ -390,138 +384,88 @@ function addLinkToDOM(categoryName, title, url) {
     container.className = "link-container";
     container.innerHTML = `
         <a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a>
-        <button class="delete-button" onclick="deleteLink(this, '${escapedCategory}', '${escapedTitle}', '${escapedUrl}')">Delete</button>
+        <div class="link-actions">
+            <button class="link-action-btn" onclick="editLink('${escapedCategory}', '${escapedTitle}', '${escapedUrl}')" title="Edit Link">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button class="link-action-btn" onclick="deleteLink(this, '${escapedCategory}', '${escapedTitle}', '${escapedUrl}')" title="Delete Link">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
     `;
     
     nav.appendChild(container);
 }
 
-window.deleteLink = async function(button, categoryName, title, url) {
-    if (!confirm("Delete this link?")) return;
-    
-    try {
-        setLoading(true);
-        
-        // Delete via API
-        await api.deleteLink(categoryName, title, url);
-        
-        // Update UI
-        const container = button.closest('.link-container');
-        if (container) {
-            container.remove();
-        }
-        
-        showNotification("Link deleted", 'success');
-        logger.info("Link deleted from API", { category: categoryName, title });
-        
-    } catch (error) {
-        logger.error("Failed to delete link via API", error);
-        
-        // Fallback: remove from UI and localStorage only
-        const container = button.closest('.link-container');
-        if (container) {
-            container.remove();
-        }
-        saveToLocalStorage();
-        
-        showNotification('Link removed locally only', 'warn');
-    } finally {
-        setLoading(false);
-    }
-};
+function editLink(categoryName, title, url) {
+    const modal = document.getElementById('editLinkModal');
+    document.getElementById('editLinkCategory').value = categoryName;
+    document.getElementById('editLinkOriginalTitle').value = title;
+    document.getElementById('editLinkTitle').value = title;
+    document.getElementById('editLinkUrl').value = url;
+    modal.style.display = 'flex';
+}
 
-async function renameCategory(oldName) {
-    const newName = prompt("Enter new category name:", oldName);
-    if (!newName || newName === oldName || !newName.trim()) return;
+function closeEditLinkModal() {
+    document.getElementById('editLinkModal').style.display = 'none';
+}
+
+async function saveEditedLink() {
+    const categoryName = document.getElementById('editLinkCategory').value;
+    const originalTitle = document.getElementById('editLinkOriginalTitle').value;
+    const newTitle = document.getElementById('editLinkTitle').value.trim();
+    let newUrl = document.getElementById('editLinkUrl').value.trim();
     
-    const trimmedNewName = newName.trim();
+    if (!newTitle || !newUrl) {
+        showNotification("Please enter both title and URL", 'error');
+        return;
+    }
+    
+    if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+        newUrl = 'https://' + newUrl;
+    }
     
     try {
         setLoading(true);
-        logger.info("Renaming category", { from: oldName, to: trimmedNewName });
         
-        // Update via API
-        await api.updateCategory(oldName, trimmedNewName);
+        await api.deleteLink(categoryName, originalTitle, document.getElementById('editLinkUrl').value);
+        await api.addLink(categoryName, { title: newTitle, url: newUrl });
         
         // Update UI
-        const section = document.querySelector(`#${safeId(oldName)}`);
-        if (section) {
-            section.id = trimmedNewName;
-            const titleSpan = section.querySelector(".category-title");
-            if (titleSpan) {
-                titleSpan.textContent = trimmedNewName.toUpperCase();
-            }
-            
-            // Update all onclick attributes
-            section.querySelectorAll('[onclick]').forEach(el => {
-                const onclick = el.getAttribute('onclick');
-                if (onclick) {
-                    el.setAttribute('onclick', onclick.replace(oldName, trimmedNewName));
-                }
-            });
-            
-            // Update input IDs
-            const titleInput = document.getElementById(`${oldName}-title`);
-            const urlInput = document.getElementById(`${oldName}-url`);
-            if (titleInput) titleInput.id = `${trimmedNewName}-title`;
-            if (urlInput) urlInput.id = `${trimmedNewName}-url`;
+        const section = document.getElementById(categoryName);
+        const oldLink = Array.from(section.querySelectorAll('.link-container a'))
+            .find(link => link.textContent === originalTitle);
+        
+        if (oldLink) {
+            const container = oldLink.closest('.link-container');
+            container.remove();
         }
         
-        showNotification(`Category renamed to "${trimmedNewName}"`, 'success');
-        
+        addLinkToDOM(categoryName, newTitle, newUrl);
+        closeEditLinkModal();
+        showNotification("Link updated", 'success');
     } catch (error) {
-        logger.error("Failed to rename category via API", error);
-        
-        // Fallback to localStorage
-        const section = document.querySelector(`#${safeId(oldName)}`);
-        if (section) {
-            section.id = trimmedNewName;
-            const titleSpan = section.querySelector(".category-title");
-            if (titleSpan) {
-                titleSpan.textContent = trimmedNewName.toUpperCase();
-            }
-        }
-        saveToLocalStorage();
-        
-        showNotification('Category renamed locally only', 'warn');
+        showNotification('Failed to update link', 'error');
     } finally {
         setLoading(false);
     }
 }
 
-window.deleteCategory = async function(categoryName) {
-    if (!confirm(`Delete category "${categoryName}" and all its links?`)) return;
+function deleteLink(button, categoryName, title, url) {
+    if (!confirm("Delete this link?")) return;
+    
+    const container = button.closest('.link-container');
     
     try {
-        setLoading(true);
-        
-        // Delete via API
-        await api.deleteCategory(categoryName);
-        
-        // Update UI
-        const section = document.getElementById(categoryName);
-        if (section) {
-            section.remove();
-        }
-        
-        showNotification(`Category "${categoryName}" deleted`, 'success');
-        logger.info("Category deleted from API", { category: categoryName });
-        
+        api.deleteLink(categoryName, title, url);
+        container.remove();
+        showNotification("Link deleted", 'success');
     } catch (error) {
-        logger.error("Failed to delete category via API", error);
-        
-        // Fallback to localStorage
-        const section = document.getElementById(categoryName);
-        if (section) {
-            section.remove();
-        }
+        container.remove();
         saveToLocalStorage();
-        
-        showNotification('Category removed locally only', 'warn');
-    } finally {
-        setLoading(false);
+        showNotification('Link removed locally only', 'warn');
     }
-};
+}
 
 function saveToLocalStorage() {
     if (!currentUser) return;
@@ -546,7 +490,6 @@ function saveToLocalStorage() {
     
     const storageKey = `linkvault_${currentUser.uid}`;
     localStorage.setItem(storageKey, JSON.stringify({ categories }));
-    logger.info("Current state saved to localStorage as backup");
 }
 
 function handleSearch(e) {
@@ -595,29 +538,19 @@ function applyDarkMode() {
 }
 
 function toggleMenu() {
-    const navLinks = document.getElementById('navLinks');
-    if (navLinks) {
-        navLinks.classList.toggle('show');
-    }
+    document.getElementById('navLinks').classList.toggle('show');
 }
 
 function showFormatModal() {
-    const modal = document.getElementById('formatModal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
+    document.getElementById('formatModal').style.display = 'flex';
 }
 
 function closeFormatModal() {
-    const modal = document.getElementById('formatModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    document.getElementById('formatModal').style.display = 'none';
 }
 
 async function exportData() {
     try {
-        // Try to get latest from API first
         const categories = await api.getCategories();
         const userData = { categories };
         
@@ -632,7 +565,6 @@ async function exportData() {
         showNotification('Data exported successfully', 'success');
         closeFormatModal();
     } catch (error) {
-        logger.error("Export failed", error);
         showNotification('Export failed', 'error');
     }
 }
@@ -674,12 +606,10 @@ async function applyData() {
             return;
         }
         
-        // For each category, create it via API
         for (const category of userData.categories) {
             try {
                 await api.createCategory(category.name);
                 
-                // Add each link
                 for (const link of category.links || []) {
                     try {
                         await api.addLink(category.name, link);
@@ -692,13 +622,10 @@ async function applyData() {
             }
         }
         
-        // Reload data
         await loadUserData();
-        
         showNotification('Data applied successfully', 'success');
         closeFormatModal();
     } catch (error) {
-        logger.error("Error applying data", error);
         showNotification('Error applying data', 'error');
     } finally {
         setLoading(false);
