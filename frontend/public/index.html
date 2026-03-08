@@ -6,10 +6,277 @@
   <title>LinkVault - Login</title>
   <link rel="icon" href="images/vault.png" type="image/x-icon" />
   <link rel="stylesheet" href="style.css" />
+  <!-- Font Awesome for icons (optional but helpful) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    /* Additional styles specific to login page to ensure it looks right with the new CSS */
+    .login-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      width: 100%;
+      background: linear-gradient(135deg, #222, #444);
+    }
+
+    .login-container {
+      background: #333;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .brand-name {
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #555;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .tab-btn.active {
+      color: #f9f9f9;
+      font-weight: bold;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: #666;
+    }
+
+    .auth-content {
+      position: relative;
+      min-height: 250px;
+    }
+
+    .auth-form {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background-color: #444;
+      color: #f9f9f9;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #666;
+      box-shadow: 0 0 5px rgba(102, 102, 102, 0.5);
+    }
+
+    .input-group input::placeholder {
+      color: #999;
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    .auth-submit-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    .auth-submit-btn:hover {
+      background-color: #666;
+    }
+
+    .auth-links {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .auth-links a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .auth-links a:hover {
+      color: #fff;
+    }
+
+    .google-auth-info {
+      text-align: center;
+    }
+
+    .google-auth-info p {
+      color: #ccc;
+      margin-bottom: 25px;
+    }
+
+    .google-login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .google-login-btn:hover {
+      background-color: #666;
+    }
+
+    .google-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .switch-to-email {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    /* Light mode styles for login */
+    body.light-mode .login-container {
+      background: #fff;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    body.light-mode .brand-name {
+      color: #333;
+    }
+
+    body.light-mode .subtitle {
+      color: #666;
+    }
+
+    body.light-mode .tab-btn {
+      color: #666;
+    }
+
+    body.light-mode .tab-btn.active {
+      color: #333;
+    }
+
+    body.light-mode .tab-btn.active::after {
+      background-color: #333;
+    }
+
+    body.light-mode .input-group input {
+      background-color: #fff;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    body.light-mode .auth-submit-btn {
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    body.light-mode .auth-submit-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    body.light-mode .auth-links a {
+      color: #666;
+    }
+
+    body.light-mode .auth-links a:hover {
+      color: #333;
+    }
+
+    body.light-mode .google-login-btn {
+      background-color: #f0f0f0;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+
+    body.light-mode .google-login-btn:hover {
+      background-color: #e0e0e0;
+    }
+
+    body.light-mode .google-auth-info p {
+      color: #666;
+    }
+
+    /* Fade In Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Ensure login page doesn't get homepage styles */
+    .login-wrapper .section,
+    .login-wrapper .category-header,
+    .login-wrapper .three-dots-menu {
+      all: unset;
+    }
+  </style>
 </head>
 <body>
   <div class="login-wrapper">
@@ -25,6 +292,7 @@
       </div>
       
       <div class="auth-content">
+        <!-- Email Login Form -->
         <form id="loginForm" class="auth-form active">
           <div class="input-group">
             <input type="email" id="email" required placeholder="Enter your email">
@@ -39,6 +307,7 @@
           </div>
         </form>
         
+        <!-- Google Login Form -->
         <div id="googleAuth" class="auth-form">
           <div class="google-auth-info">
             <p>Quick login with your Google account</p>
@@ -71,23 +340,37 @@
 
   <script>
     // Tab switching functionality
-    document.getElementById('emailTab').addEventListener('click', () => {
-      document.getElementById('emailTab').classList.add('active');
-      document.getElementById('googleTab').classList.remove('active');
-      document.getElementById('loginForm').classList.add('active');
-      document.getElementById('googleAuth').classList.remove('active');
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+      const emailTab = document.getElementById('emailTab');
+      const googleTab = document.getElementById('googleTab');
+      const loginForm = document.getElementById('loginForm');
+      const googleAuth = document.getElementById('googleAuth');
+      
+      if (emailTab) {
+        emailTab.addEventListener('click', () => {
+          emailTab.classList.add('active');
+          googleTab.classList.remove('active');
+          loginForm.classList.add('active');
+          googleAuth.classList.remove('active');
+        });
+      }
 
-    document.getElementById('googleTab').addEventListener('click', () => {
-      document.getElementById('googleTab').classList.add('active');
-      document.getElementById('emailTab').classList.remove('active');
-      document.getElementById('googleAuth').classList.add('active');
-      document.getElementById('loginForm').classList.remove('active');
-    });
+      if (googleTab) {
+        googleTab.addEventListener('click', () => {
+          googleTab.classList.add('active');
+          emailTab.classList.remove('active');
+          googleAuth.classList.add('active');
+          loginForm.classList.remove('active');
+        });
+      }
 
-    document.querySelector('.switch-to-email')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      document.getElementById('emailTab').click();
+      const switchToEmail = document.querySelector('.switch-to-email');
+      if (switchToEmail) {
+        switchToEmail.addEventListener('click', (e) => {
+          e.preventDefault();
+          if (emailTab) emailTab.click();
+        });
+      }
     });
   </script>
 </body>
