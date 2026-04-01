@@ -2,10 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>LinkVault - Dashboard</title>
   <link rel="icon" href="images/vault.png" type="image/x-icon" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?=2.0" />
+  <style>
+    /* Fallback to ensure cards are same height */
+    .section {
+        height: 350px !important;
+        min-height: 350px !important;
+        max-height: 350px !important;
+        overflow: hidden !important;
+    }
+    nav {
+        overflow-y: auto !important;
+        flex: 1 !important;
+    }
+</style>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
