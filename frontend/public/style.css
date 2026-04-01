@@ -97,18 +97,20 @@ body.dark-mode .search-bar {
 }
 
 .section {
+  isolation: isolate; 
   background-color: #444;
   border-radius: 10px;
   box-shadow: 0 12px 16px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
   padding: 15px;
-  overflow: visible;
+  overflow: visible; /* Keep this */
   position: relative;
   min-height: 250px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  z-index: 1; /* Add base z-index */
 }
 
 .section h2 {
@@ -118,6 +120,12 @@ body.dark-mode .search-bar {
   text-align: center;
   color: #181f1f;
 }
+
+/* Make section have higher z-index when dropdown is open */
+.section:has(.dropdown-menu.show) {
+  z-index: 100; /* Temporarily increase z-index when dropdown is open */
+}
+
 
 .section:hover {
   transform: translateY(-5px);
@@ -268,6 +276,7 @@ nav,
   width: 100%;
   position: relative;
   padding: 5px 0;
+  margin-bottom: 10px; /* Add margin to separate from content */
 }
 
 .category-title-wrapper {
@@ -291,6 +300,7 @@ nav,
 .three-dots-menu {
   position: relative;
   display: inline-block;
+  z-index: 10;
 }
 
 .dots-button {
@@ -299,7 +309,7 @@ nav,
   font-size: 20px;
   cursor: pointer;
   padding: 8px 12px;
-  border-radius: 50%;
+  border-radius: 10%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -320,23 +330,26 @@ body.light-mode .dots-button:hover {
 .dropdown-menu {
   display: none;
   position: absolute;
-  bottom: 100%;
-  left: 0;
+  top: 0; /* Position at the top of the button area */
+  right: 0; /* Align to the right edge */
+  left: auto;
   min-width: 200px;
   background-color: #444;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
-  z-index: 9999;
+  z-index: 9999; /* Very high z-index to appear above everything */
   padding: 8px 0;
-  margin-bottom: 5px;
+  margin-top: 35px; /* Push down below the button */
   border: 1px solid #555;
+  transform-origin: top right;
 }
 
-/* Position dropdown to the right on smaller screens */
+
+/* On mobile, adjust positioning */
 @media (max-width: 768px) {
   .dropdown-menu {
-    left: auto;
     right: 0;
+    left: auto;
     min-width: 180px;
   }
 }
@@ -352,7 +365,6 @@ body.light-mode .dots-button:hover {
   display: block;
   animation: fadeInUp 0.2s ease-out;
 }
-
 /* Dropdown items */
 .dropdown-item {
   display: flex;
@@ -404,6 +416,17 @@ body.light-mode .dropdown-item:hover {
   flex-shrink: 0;
 }
 
+/* Animation for dropdown */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* Navbar Styles */
 .navbar {
   display: flex;
