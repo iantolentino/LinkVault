@@ -129,7 +129,7 @@ function setupEventListeners() {
     const modeToggle = document.getElementById('modeToggle');
     if (modeToggle) {
         modeToggle.addEventListener('click', toggleDarkMode);
-        modeToggle.textContent = isDarkMode ? '☾ Dark Mode' : '◯ Light Mode';
+        modeToggle.textContent = isDarkMode ? '☼' : '☾';
     }
     
     const menuToggle = document.getElementById('menuToggle');
@@ -513,7 +513,7 @@ function toggleDarkMode() {
     localStorage.setItem("darkMode", isDarkMode);
     applyDarkMode();
     const toggle = document.getElementById('modeToggle');
-    if (toggle) toggle.textContent = isDarkMode ? '☾ Dark Mode' : '◯ Light Mode';
+    if (toggle) toggle.textContent = isDarkMode ? '☼' : '☾';
 }
 
 function applyDarkMode() {
