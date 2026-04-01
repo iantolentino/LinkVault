@@ -393,19 +393,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 The MIT License is a permissive license that is short and to the point. It lets people do nearly anything they want with your code as long as they provide attribution back to you and don’t hold you liable.
 
-### Permissions
-- Commercial use: You can use this software for commercial purposes.
-- Modification: You can move, add, or change the code.
-- Distribution: You can share the code with others.
-- Private use: You can use it for your own personal projects.
-
-### Limitations
-- Liability: The software is provided "as is," without warranty of any kind.
-- Warranty: The author is not responsible for any issues arising from the use of the software.
-
-### Conditions
-- License and copyright notice: A copy of the license and copyright notice must be included in all copies or substantial portions of the software.
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
