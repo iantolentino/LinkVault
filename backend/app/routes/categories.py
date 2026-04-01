@@ -9,20 +9,17 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 async def get_current_user(authorization: Optional[str] = Header(None)):
-    """Extract and validate real Firebase user token"""
-    if not authorization or not authorization.startswith("Bearer "):
-        logger.warning("Auth failed: Missing or malformed header")
-        raise HTTPException(status_code=401, detail="Invalid or missing authorization header")
+    if not authorization:
+        raise HTTPException(status_code=401, detail="No header")
     
     try:
         token = authorization.split("Bearer ")[1]
-        # Verify the ID token using Firebase Admin SDK
+        # This will print the specific reason for failure in your Railway logs
         decoded_token = firebase_auth.verify_id_token(token)
-        # Return the unique Firebase UID (string)
         return decoded_token["uid"]
     except Exception as e:
-        logger.error(f"Firebase Auth Error: {e}")
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
+        logger.error(f"VERIFICATION FAILED: {str(e)}") # LOOK AT YOUR RAILWAY LOGS FOR THIS
+        raise HTTPException(status_code=401, detail=f"Token verification failed: {str(e)}")
 
 @router.get("/")
 async def get_categories(user_id: str = Depends(get_current_user)):

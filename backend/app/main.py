@@ -32,27 +32,24 @@ app.add_middleware(
 
 # --- FIREBASE INITIALIZATION ---
 def init_firebase():
-    # Check if we have the JSON string from Railway Variables
     firebase_creds_json = os.getenv("FIREBASE_SERVICE_ACCOUNT_JSON")
     
     if not firebase_admin._apps:
-        if firebase_creds_json:
-            try:
-                # Parse the JSON string into a dictionary
+        try:
+            if firebase_creds_json:
+                # IMPORTANT: Ensure the JSON string is properly loaded
                 creds_dict = json.loads(firebase_creds_json)
                 cred = credentials.Certificate(creds_dict)
                 firebase_admin.initialize_app(cred)
-                logger.info("Firebase initialized using Environment Variable")
-            except Exception as e:
-                logger.error(f"Failed to initialize Firebase from JSON string: {e}")
-        else:
-            # Fallback for local development (looking for the file)
-            try:
+                logger.info("✅ Firebase initialized via Environment Variable")
+            else:
+                # Fallback for local dev
                 cred = credentials.Certificate("serviceAccountKey.json")
                 firebase_admin.initialize_app(cred)
-                logger.info("Firebase initialized using local serviceAccountKey.json")
-            except Exception as e:
-                logger.warning(f"Firebase credentials not found. Auth may fail: {e}")
+                logger.info("✅ Firebase initialized via local JSON file")
+        except Exception as e:
+            logger.error(f"❌ FIREBASE INIT FAILED: {e}")
+            # This is critical: if this fails, all 401s will happen
 
 # Database & Firebase connection events
 @app.on_event("startup")
