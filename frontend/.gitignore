@@ -1,10 +1,17 @@
-# Frontend specific
-node_modules/
-.env.local
-.env.*.local
-dist/
-build/
-.vite/
-*.log
-.DS_Store
-.vercel/
+# Ignore the virtual environments
+backend/venv/
+venv/
+.venv/
+bin/
+Include/
+Lib/
+Scripts/
+pyvenv.cfg
+
+\.env
+backend/.env
+frontend/.env
+*.env
+# Ignore python cache
+__pycache__/
+*.pyc

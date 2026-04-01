@@ -1,0 +1,16 @@
+# Backend specific
+__pycache__/
+*.pyc
+venv/
+env/
+ENV/
+.env
+*.db
+*.sqlite3
+user_data/
+firebase-service-account.json
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
