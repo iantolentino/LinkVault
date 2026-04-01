@@ -22,28 +22,37 @@ class LinkVaultAPI {
     }
 
     async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        const headers = await this.getHeaders();
+        // 1. Try to get the latest token directly from Firebase instead of just localStorage
+        const user = window.FirebaseAuth?.currentUser;
+        let token = localStorage.getItem('firebase_token');
         
-        this.logger.info(`Making request to: ${url}`);
-        
+        if (user) {
+            token = await user.getIdToken(true); // Force refresh to be sure
+            localStorage.setItem('firebase_token', token);
+        }
+
+        const url = `${this.baseUrl}${endpoint}`;
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Ensure this is exactly "Bearer <token>"
+            ...options.headers
+        };
+
         try {
-            const response = await fetch(url, {
-                ...options,
-                headers: { ...headers, ...options.headers },
-                mode: 'cors'
-            });
+            const response = await fetch(url, { ...options, headers });
             
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({}));
-                throw new Error(error.detail || `HTTP ${response.status}`);
+            if (response.status === 401) {
+                throw new Error("Invalid authentication token");
             }
             
-            const data = await response.json();
-            this.logger.info(`Response from ${endpoint}:`, data);
-            return data;
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
         } catch (error) {
-            this.logger.error(`Request failed: ${endpoint}`, error);
+            console.error(`❌ [API] Request failed: ${endpoint}`, error);
             throw error;
         }
     }
