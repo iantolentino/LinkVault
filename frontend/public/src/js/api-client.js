@@ -2,7 +2,7 @@
 class LinkVaultAPI {
     constructor() {
         // Use your live Render backend URL
-        this.baseURL = 'https://linkvault-7ix0.onrender.com';
+        this.baseURL = 'https://linkvault-production.up.railway.app';
         // this.baseURL = 'http://localhost:8000';  
         
         this.logger = {
