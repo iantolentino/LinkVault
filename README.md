@@ -1,5 +1,3 @@
-<img width="3840" height="1080" alt="image" src="https://github.com/user-attachments/assets/1143ecdf-ff97-4991-b1d4-a8ed1b470fa0" /># LinkVault - Secure Link Management System
-
 LinkVault is a full-stack web application that allows users to securely organize, store, and manage their bookmarks and links in categorized collections. The application provides a clean, intuitive interface with cloud synchronization, dark/light mode support, and data import/export capabilities.
 
 ## Table of Contents
