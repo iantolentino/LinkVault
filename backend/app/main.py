@@ -4,7 +4,8 @@ from dotenv import load_dotenv
 import logging
 import os
 from app.database import db
-from app.routes import categories
+# Ensure all route modules are imported
+from app.routes import categories, links, auth
 
 load_dotenv()
 
@@ -13,13 +14,15 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="LinkVault API")
 
-# CORS
+# CORS Configuration
+# Added your specific Railway production domain
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "https://l-vault.vercel.app",
-        "https://linkvault-7ix0.onrender.com"
+        "https://linkvault-production.up.railway.app",
+        "https://linkvault-7ix0.onrender.com" # Keeping for legacy/transition
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -37,10 +40,17 @@ async def shutdown():
     await db.close()
     logger.info("Application shutdown complete")
 
-# Health check
+# Health check (Crucial for Railway to pass deployment)
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "database": "connected"}
 
+# Root path for quick verification
+@app.get("/")
+async def root():
+    return {"message": "LinkVault API is live on Railway"}
+
 # Routes
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(categories.router, prefix="/api/categories", tags=["categories"])
+app.include_router(links.router, prefix="/api/links", tags=["links"])
