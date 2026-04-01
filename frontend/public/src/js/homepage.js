@@ -60,7 +60,6 @@ document.addEventListener('click', function(event) {
 document.addEventListener("DOMContentLoaded", async () => {
     logger.info("Homepage loaded");
     
-// Inside your DOMContentLoaded listener in homepage.js
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             // Clear the UI immediately so the next person doesn't see anything
@@ -72,12 +71,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             currentUser = user;
             logger.success("User authenticated", { email: user.email });
-    
-            // --- NEW USERNAME LOGIC START ---
+
+            // --- USERNAME DISPLAY LOGIC ---
             try {
                 const email = user.email;
                 const rawUsername = email.split('@')[0];
-                // Optional: Capitalize first letter for a cleaner look
+                // Capitalize first letter (e.g., "ian" -> "Ian")
                 const formattedName = rawUsername.charAt(0).toUpperCase() + rawUsername.slice(1);
                 
                 const nameDisplay = document.getElementById('user-display-name');
@@ -87,9 +86,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             } catch (nameErr) {
                 logger.error("Could not set username display", nameErr);
             }
-            // --- NEW USERNAME LOGIC END ---
             
-            // Ensure the token is current for the API client
+            // FIX: Ensure the token is current for the API client
             const token = await user.getIdToken();
             localStorage.setItem('firebase_token', token);
             
@@ -100,13 +98,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             await loadUserData();
         }
-});
     });
 
     setupEventListeners();
     applyDarkMode();
     
-    // Make functions globally available
+    // Make functions globally available for inline HTML onclick handlers
     window.toggleDropdown = toggleDropdown;
     window.editCategory = editCategory;
     window.deleteCategory = deleteCategory;
