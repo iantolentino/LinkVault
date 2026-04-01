@@ -1,3 +1,7 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+# LinkVault
+
 LinkVault is a full-stack web application that allows users to securely organize, store, and manage their bookmarks and links in categorized collections. The application provides a clean, intuitive interface with cloud synchronization, dark/light mode support, and data import/export capabilities.
 
 ## Table of Contents
@@ -346,16 +350,28 @@ LinkVault/
 
 ## Screenshots
 
-[Screenshots to be added here]
 - Login Page
-  
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/74284615-fcef-4cab-bbde-d5f3e6467d0c" />
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/7866af29-94dd-4469-afd2-46ad612fe573" />
+
 - Dashboard with Categories
-  
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/38732524-dd9e-49bf-91fc-5cae3190d187" />
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/d4602697-9a14-4b05-aaa6-e1b9e0859dfe" />
+
 - Dark Mode View
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/0f829ae0-a26b-467c-937a-3f39551a3d0c" />
+
+- Light Mode View
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/af54095b-58ab-44ed-a7a6-e7de7e57b15e" />
 
 - Link Management Interface
-  
+  - Edit Category Name, Delete Category, Add New Link
+  <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/033814fc-2c47-4aa1-ab05-5bf72d01f573" />
+  - Edit Link Modal
+  <img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/c0c2d522-0511-4bd5-9fa2-d557a0c5b342" />
+
 - Import/Export Modal
+<img width="1280" height="720" alt="image" src="https://github.com/user-attachments/assets/d5ac354e-9b74-48cf-8420-e818b5eb62e1" />
 
 ## Contributing
 
@@ -374,6 +390,23 @@ LinkVault/
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+The MIT License is a permissive license that is short and to the point. It lets people do nearly anything they want with your code as long as they provide attribution back to you and don’t hold you liable.
+
+### Permissions
+- Commercial use: You can use this software for commercial purposes.
+- Modification: You can move, add, or change the code.
+- Distribution: You can share the code with others.
+- Private use: You can use it for your own personal projects.
+
+### Limitations
+- Liability: The software is provided "as is," without warranty of any kind.
+- Warranty: The author is not responsible for any issues arising from the use of the software.
+
+### Conditions
+- License and copyright notice: A copy of the license and copyright notice must be included in all copies or substantial portions of the software.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
