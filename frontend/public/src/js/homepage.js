@@ -60,19 +60,36 @@ document.addEventListener('click', function(event) {
 document.addEventListener("DOMContentLoaded", async () => {
     logger.info("Homepage loaded");
     
+// Inside your DOMContentLoaded listener in homepage.js
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-                // Clear the UI immediately so the next person doesn't see anything
-                const container = document.getElementById('container');
-                if (container) container.innerHTML = ''; 
-                
-                localStorage.removeItem('firebase_token');
-                window.location.href = "index.html";
-            } else {
+            // Clear the UI immediately so the next person doesn't see anything
+            const container = document.getElementById('container');
+            if (container) container.innerHTML = ''; 
+            
+            localStorage.removeItem('firebase_token');
+            window.location.href = "index.html";
+        } else {
             currentUser = user;
             logger.success("User authenticated", { email: user.email });
+    
+            // --- NEW USERNAME LOGIC START ---
+            try {
+                const email = user.email;
+                const rawUsername = email.split('@')[0];
+                // Optional: Capitalize first letter for a cleaner look
+                const formattedName = rawUsername.charAt(0).toUpperCase() + rawUsername.slice(1);
+                
+                const nameDisplay = document.getElementById('user-display-name');
+                if (nameDisplay) {
+                    nameDisplay.textContent = ` - ${formattedName}`;
+                }
+            } catch (nameErr) {
+                logger.error("Could not set username display", nameErr);
+            }
+            // --- NEW USERNAME LOGIC END ---
             
-            // FIX: Ensure the token is current for the API client
+            // Ensure the token is current for the API client
             const token = await user.getIdToken();
             localStorage.setItem('firebase_token', token);
             
@@ -83,6 +100,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             await loadUserData();
         }
+});
     });
 
     setupEventListeners();
