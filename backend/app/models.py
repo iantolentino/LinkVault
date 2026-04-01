@@ -10,7 +10,7 @@ class Link(BaseModel):
 class Category(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     links: List[Link] = []
-    user_id: str
+    user_id: Optional[str] = None # Change this to Optional
     updated_at: Optional[datetime] = None
 
 class UserData(BaseModel):
