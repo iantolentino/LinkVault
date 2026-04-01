@@ -1,16 +1,15 @@
 FROM python:3.11-slim
 
-WORKDIR /app
+WORKDIR /app/backend
 
-# Copy the requirements file from the backend folder
+# Copy requirements and install
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire backend folder into the container
-COPY backend/ /app/backend/
+# Copy the backend source code
+COPY backend/ .
 
-# Set the Python Path so 'backend.app.main' can be found
-ENV PYTHONPATH=/app
+# Set the path so 'app.main' can be found
+ENV PYTHONPATH=/app/backend
 
-# Railway uses the port from the environment
-EXPOSE $PORT
+# The start command is handled by railway.json
