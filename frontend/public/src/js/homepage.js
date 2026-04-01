@@ -62,10 +62,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            logger.info("No user detected, redirecting to login");
-            localStorage.removeItem('firebase_token');
-            window.location.href = "index.html";
-        } else {
+                // Clear the UI immediately so the next person doesn't see anything
+                const container = document.getElementById('container');
+                if (container) container.innerHTML = ''; 
+                
+                localStorage.removeItem('firebase_token');
+                window.location.href = "index.html";
+            } else {
             currentUser = user;
             logger.success("User authenticated", { email: user.email });
             
@@ -190,7 +193,14 @@ function renderCategories(categories) {
     if (!container) return;
     
     closeAllDropdowns();
-    container.innerHTML = '';
+    
+    // CRITICAL: Wipe the UI completely before rendering the new user's links
+    container.innerHTML = ''; 
+    
+    if (!categories || categories.length === 0) {
+        logger.info("No categories found for this user.");
+        return;
+    }
     
     categories.forEach(category => {
         createCategoryElement(category.name);
