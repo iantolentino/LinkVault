@@ -1,11 +1,17 @@
-# backend/Dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+# Copy requirements from the root or backend folder
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./app /app/app
+# Copy the entire backend folder into /app/backend
+COPY backend /app/backend
 
-CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
+# Set Python path so it can find the 'backend' module
+ENV PYTHONPATH=/app
+
+# The command is handled by railway.json, 
+# but you can keep a CMD here for safety:
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8080"]
