@@ -62,11 +62,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            logger.info("No user, redirecting to login");
+            logger.info("No user detected, redirecting to login");
+            localStorage.removeItem('firebase_token');
             window.location.href = "index.html";
         } else {
             currentUser = user;
             logger.success("User authenticated", { email: user.email });
+            
+            // FIX: Ensure the token is current for the API client
+            const token = await user.getIdToken();
+            localStorage.setItem('firebase_token', token);
             
             const userStorageKey = `linkvault_${user.uid}`;
             if (!localStorage.getItem(userStorageKey)) {
@@ -131,11 +136,15 @@ function setupEventListeners() {
     if (applyBtn) applyBtn.addEventListener('click', applyData);
 }
 
+// FIX: Improved Logout to clear user-specific cache
 async function handleLogout() {
     try {
         setLoading(true);
-        await signOut(auth);
+        if (currentUser) {
+            localStorage.removeItem(`linkvault_${currentUser.uid}`);
+        }
         localStorage.removeItem('firebase_token');
+        await signOut(auth);
         window.location.href = "index.html";
     } catch (error) {
         showNotification("Logout failed: " + error.message, 'error');
@@ -149,7 +158,9 @@ async function loadUserData() {
         setLoading(true);
         const categories = await api.getCategories();
         renderCategories(categories);
+        saveToLocalStorage(); // Sync offline cache with fresh API data
     } catch (error) {
+        logger.warn("API load failed, falling back to local storage", error);
         loadFromLocalStorage();
         showNotification('Using offline mode', 'warn');
     } finally {
@@ -162,7 +173,6 @@ function loadFromLocalStorage() {
     if (!container) return;
     
     container.innerHTML = '';
-    
     const storageKey = currentUser ? `linkvault_${currentUser.uid}` : 'linkvault_temp';
     const userData = JSON.parse(localStorage.getItem(storageKey) || '{"categories":[]}');
     const categories = userData.categories || [];
@@ -195,18 +205,16 @@ function renderCategories(categories) {
 async function handleAddCategory() {
     const name = prompt("Enter category name:");
     if (!name || !name.trim()) return;
-    
     const trimmedName = name.trim();
     
     try {
         setLoading(true);
         await api.createCategory(trimmedName);
-        
         if (!document.getElementById(trimmedName)) {
             createCategoryElement(trimmedName);
         }
-        
         showNotification(`Category "${trimmedName}" created`, 'success');
+        saveToLocalStorage();
     } catch (error) {
         if (!document.getElementById(trimmedName)) {
             createCategoryElement(trimmedName);
@@ -256,9 +264,7 @@ function createCategoryElement(name) {
 
 function toggleDropdown(button, event) {
     if (event) event.stopPropagation();
-    
     closeAllDropdowns();
-    
     const dropdown = button.nextElementSibling;
     dropdown.classList.add('show');
     activeDropdown = dropdown;
@@ -272,7 +278,6 @@ function editCategory(categoryName) {
 async function renameCategory(oldName) {
     const newName = prompt("Enter new category name:", oldName);
     if (!newName || newName === oldName || !newName.trim()) return;
-    
     const trimmedNewName = newName.trim();
     
     try {
@@ -283,22 +288,17 @@ async function renameCategory(oldName) {
         if (section) {
             section.id = trimmedNewName;
             const titleSpan = section.querySelector(".category-title");
-            if (titleSpan) {
-                titleSpan.textContent = trimmedNewName.toUpperCase();
-            }
+            if (titleSpan) titleSpan.textContent = trimmedNewName.toUpperCase();
             
-            // Update onclick attributes
             section.querySelectorAll('[onclick]').forEach(el => {
                 const onclick = el.getAttribute('onclick');
-                if (onclick) {
-                    el.setAttribute('onclick', onclick.replace(oldName, trimmedNewName));
-                }
+                if (onclick) el.setAttribute('onclick', onclick.replace(new RegExp(oldName, 'g'), trimmedNewName));
             });
         }
-        
         showNotification(`Category renamed to "${trimmedNewName}"`, 'success');
+        saveToLocalStorage();
     } catch (error) {
-        showNotification('Category renamed locally only', 'warn');
+        showNotification('Failed to rename category', 'error');
     } finally {
         setLoading(false);
     }
@@ -306,22 +306,17 @@ async function renameCategory(oldName) {
 
 async function deleteCategory(categoryName) {
     if (!confirm(`Delete category "${categoryName}" and all its links?`)) return;
-    
     closeAllDropdowns();
     
     try {
         setLoading(true);
         await api.deleteCategory(categoryName);
-        
         const section = document.getElementById(categoryName);
         if (section) section.remove();
-        
         showNotification(`Category "${categoryName}" deleted`, 'success');
-    } catch (error) {
-        const section = document.getElementById(categoryName);
-        if (section) section.remove();
         saveToLocalStorage();
-        showNotification('Category removed locally only', 'warn');
+    } catch (error) {
+        showNotification('Failed to delete category', 'error');
     } finally {
         setLoading(false);
     }
@@ -329,7 +324,6 @@ async function deleteCategory(categoryName) {
 
 function openAddLinkModal(categoryName) {
     closeAllDropdowns();
-    
     const modal = document.getElementById('addLinkModal');
     document.getElementById('addLinkCategory').value = categoryName;
     document.getElementById('addLinkTitle').value = '';
@@ -350,23 +344,17 @@ async function saveNewLink() {
         showNotification("Please enter both title and URL", 'error');
         return;
     }
-    
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-    }
+    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
     
     try {
         setLoading(true);
         await api.addLink(categoryName, { title, url });
-        
         addLinkToDOM(categoryName, title, url);
         closeAddLinkModal();
         showNotification("Link added", 'success');
-    } catch (error) {
-        addLinkToDOM(categoryName, title, url);
         saveToLocalStorage();
-        closeAddLinkModal();
-        showNotification('Link saved locally only', 'warn');
+    } catch (error) {
+        showNotification('Failed to add link', 'error');
     } finally {
         setLoading(false);
     }
@@ -393,7 +381,6 @@ function addLinkToDOM(categoryName, title, url) {
             </button>
         </div>
     `;
-    
     nav.appendChild(container);
 }
 
@@ -420,30 +407,24 @@ async function saveEditedLink() {
         showNotification("Please enter both title and URL", 'error');
         return;
     }
-    
-    if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
-        newUrl = 'https://' + newUrl;
-    }
+    if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) newUrl = 'https://' + newUrl;
     
     try {
         setLoading(true);
-        
+        // Sequential API calls to mimic an update
         await api.deleteLink(categoryName, originalTitle, document.getElementById('editLinkUrl').value);
         await api.addLink(categoryName, { title: newTitle, url: newUrl });
         
-        // Update UI
         const section = document.getElementById(categoryName);
-        const oldLink = Array.from(section.querySelectorAll('.link-container a'))
-            .find(link => link.textContent === originalTitle);
+        const oldLinkContainer = Array.from(section.querySelectorAll('.link-container'))
+            .find(container => container.querySelector('a').textContent === originalTitle);
         
-        if (oldLink) {
-            const container = oldLink.closest('.link-container');
-            container.remove();
-        }
+        if (oldLinkContainer) oldLinkContainer.remove();
         
         addLinkToDOM(categoryName, newTitle, newUrl);
         closeEditLinkModal();
         showNotification("Link updated", 'success');
+        saveToLocalStorage();
     } catch (error) {
         showNotification('Failed to update link', 'error');
     } finally {
@@ -451,67 +432,53 @@ async function saveEditedLink() {
     }
 }
 
-function deleteLink(button, categoryName, title, url) {
+async function deleteLink(button, categoryName, title, url) {
     if (!confirm("Delete this link?")) return;
-    
     const container = button.closest('.link-container');
     
     try {
-        api.deleteLink(categoryName, title, url);
+        setLoading(true);
+        await api.deleteLink(categoryName, title, url);
         container.remove();
         showNotification("Link deleted", 'success');
-    } catch (error) {
-        container.remove();
         saveToLocalStorage();
-        showNotification('Link removed locally only', 'warn');
+    } catch (error) {
+        showNotification('Failed to delete link', 'error');
+    } finally {
+        setLoading(false);
     }
 }
 
 function saveToLocalStorage() {
     if (!currentUser) return;
-    
     const categories = [];
     const sections = document.querySelectorAll('.section');
     
     sections.forEach(section => {
         const name = section.id;
         const links = [];
-        const linkElements = section.querySelectorAll('.link-container a');
-        
-        linkElements.forEach(link => {
-            links.push({
-                title: link.textContent,
-                url: link.href
-            });
+        section.querySelectorAll('.link-container a').forEach(link => {
+            links.push({ title: link.textContent, url: link.href });
         });
-        
         categories.push({ name, links });
     });
     
-    const storageKey = `linkvault_${currentUser.uid}`;
-    localStorage.setItem(storageKey, JSON.stringify({ categories }));
+    localStorage.setItem(`linkvault_${currentUser.uid}`, JSON.stringify({ categories }));
 }
 
 function handleSearch(e) {
     const query = e.target.value.toLowerCase().trim();
-    const links = document.querySelectorAll('.link-container a');
-    
-    links.forEach(link => {
+    document.querySelectorAll('.link-container a').forEach(link => {
         const text = link.textContent.toLowerCase();
         const container = link.closest('.link-container');
-        
-        if (text.includes(query)) {
+        if (text.includes(query) && query !== "") {
             link.classList.add('highlight');
-            if (container) {
-                container.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
-                container.style.borderLeft = '3px solid gold';
-            }
+            container.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
+            container.style.borderLeft = '3px solid gold';
         } else {
             link.classList.remove('highlight');
-            if (container) {
-                container.style.backgroundColor = '';
-                container.style.borderLeft = '';
-            }
+            container.style.backgroundColor = '';
+            container.style.borderLeft = '';
         }
     });
 }
@@ -520,21 +487,13 @@ function toggleDarkMode() {
     isDarkMode = !isDarkMode;
     localStorage.setItem("darkMode", isDarkMode);
     applyDarkMode();
-    
     const toggle = document.getElementById('modeToggle');
-    if (toggle) {
-        toggle.textContent = isDarkMode ? '☾ Dark Mode' : '◯ Light Mode';
-    }
+    if (toggle) toggle.textContent = isDarkMode ? '☾ Dark Mode' : '◯ Light Mode';
 }
 
 function applyDarkMode() {
-    if (isDarkMode) {
-        document.body.classList.add('dark-mode');
-        document.body.classList.remove('light-mode');
-    } else {
-        document.body.classList.add('light-mode');
-        document.body.classList.remove('dark-mode');
-    }
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.body.classList.toggle('light-mode', !isDarkMode);
 }
 
 function toggleMenu() {
@@ -552,39 +511,31 @@ function closeFormatModal() {
 async function exportData() {
     try {
         const categories = await api.getCategories();
-        const userData = { categories };
-        
-        const blob = new Blob([JSON.stringify(userData, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify({ categories }, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `linkvault_${currentUser?.uid || 'backup'}_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `linkvault_backup_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        
         showNotification('Data exported successfully', 'success');
-        closeFormatModal();
     } catch (error) {
         showNotification('Export failed', 'error');
     }
 }
 
 function importData() {
-    const input = document.getElementById('formatUpload');
-    const file = input.files[0];
-    if (!file) {
-        showNotification('Please select a file', 'error');
-        return;
-    }
+    const file = document.getElementById('formatUpload').files[0];
+    if (!file) return showNotification('Select a file', 'error');
     
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
             const data = JSON.parse(e.target.result);
             document.getElementById('output').textContent = JSON.stringify(data, null, 2);
-            showNotification('File loaded, click Apply to use', 'info');
+            showNotification('File loaded, click Apply', 'info');
         } catch (error) {
-            showNotification('Invalid JSON file', 'error');
+            showNotification('Invalid JSON', 'error');
         }
     };
     reader.readAsText(file);
@@ -592,38 +543,19 @@ function importData() {
 
 async function applyData() {
     const output = document.getElementById('output').textContent;
-    if (!output) {
-        showNotification('No data to apply', 'error');
-        return;
-    }
+    if (!output) return showNotification('No data to apply', 'error');
     
     try {
         setLoading(true);
         const userData = JSON.parse(output);
-        
-        if (!userData.categories || !Array.isArray(userData.categories)) {
-            showNotification('Invalid data format', 'error');
-            return;
-        }
-        
         for (const category of userData.categories) {
-            try {
-                await api.createCategory(category.name);
-                
-                for (const link of category.links || []) {
-                    try {
-                        await api.addLink(category.name, link);
-                    } catch (linkError) {
-                        logger.warn(`Failed to add link ${link.title}`, linkError);
-                    }
-                }
-            } catch (catError) {
-                logger.warn(`Failed to create category ${category.name}`, catError);
+            await api.createCategory(category.name).catch(() => {}); 
+            for (const link of category.links || []) {
+                await api.addLink(category.name, link).catch(() => {});
             }
         }
-        
         await loadUserData();
-        showNotification('Data applied successfully', 'success');
+        showNotification('Data applied', 'success');
         closeFormatModal();
     } catch (error) {
         showNotification('Error applying data', 'error');
